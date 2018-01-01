@@ -1,6 +1,7 @@
 package com.sdirin.java.newstracker.data.network;
 
 import retrofit2.Retrofit;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 /**
  * Created by SDirin on 01-Jan-18.
@@ -12,7 +13,10 @@ public class RetrofitClient {
 
     public static Retrofit getClient(String baseUrl){
         if (retrofit == null) {
-            retrofit = new Retrofit.Builder().baseUrl(baseUrl).build();
+            retrofit = new Retrofit.Builder()
+                    .baseUrl(baseUrl)
+                    .addConverterFactory(ScalarsConverterFactory.create())
+                    .build();
         }
         return retrofit;
     }
