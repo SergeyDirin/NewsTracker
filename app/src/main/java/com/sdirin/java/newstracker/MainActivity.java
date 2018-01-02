@@ -22,11 +22,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //todo create tests for network
-
-        //todo add classes ro Json parse
-        //todo prepare RecyclerView and show list
-
         mService = ApiUtils.getService();
 
         mService.getNews().enqueue(new Callback<String>() {

@@ -1,6 +1,7 @@
 package com.sdirin.java.newstracker.data.network;
 
 import com.sdirin.java.newstracker.data.network.mock.FakeInterceptor;
+import com.sdirin.java.newstracker.data.network.mock.Requests;
 
 import junit.framework.Assert;
 
@@ -74,7 +75,7 @@ public class RetrofitClientTest {
                     public okhttp3.Response intercept(Chain chain) throws IOException {
                         HttpUrl url = chain.request().url();
 
-                        String responseString = "{\"status\":\"error\",\"code\":\"sourcesTooMany\",\"message\":\"Too Many Requests. You made too many requests within a window of time and have been rate limited. Back off for a while.\"}";
+                        String responseString = Requests.TOO_MANY_REQUESTS;
                         return new okhttp3.Response.Builder()
                                 .code(429)
                                 .message(responseString)

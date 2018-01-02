@@ -1,5 +1,10 @@
 package com.sdirin.java.newstracker.data.model;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
 /**
  * Created by SDirin on 01-Jan-18.
  */
@@ -24,9 +29,11 @@ public class Article {
     private String description;
     private String url;
     private String urlToImage;
-    private String publishedAt;
+    private Date publishedAt;
 
-    public Article(Source source, String author, String title, String description, String url, String urlToImage, String publishedAt) {
+    public Article(){}
+
+    public Article(Source source, String author, String title, String description, String url, String urlToImage, Date publishedAt) {
         this.source = source;
         this.author = author;
         this.title = title;
@@ -84,11 +91,25 @@ public class Article {
         this.urlToImage = urlToImage;
     }
 
-    public String getPublishedAt() {
+    public Date getPublishedAt() {
         return publishedAt;
     }
 
-    public void setPublishedAt(String publishedAt) {
+    public void setPublishedAt(Date publishedAt) {
         this.publishedAt = publishedAt;
+    }
+
+    public String getPublishedAtString() {
+        SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getDefault());
+        return sdf.format(publishedAt);
+    }
+
+    public void setPublishedAtString(String publishedAt) throws ParseException {
+        String prepare = publishedAt.replace('T',' ').replace("Z","");//"2009-10-10T12:12:12Z";
+        SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC (+000)"));
+        Date date = sdf.parse(prepare);
+        this.publishedAt = date;
     }
 }
