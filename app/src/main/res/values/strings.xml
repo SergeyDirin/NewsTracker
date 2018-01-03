@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">NewsTracker</string>
+    <string name="by">by</string>
 </resources>

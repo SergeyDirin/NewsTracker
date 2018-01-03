@@ -14,7 +14,7 @@ public class ArticleTest {
     @Test
     public void checkSettingPublishedAt() {
         String stringDate = "2018-01-02T07:36:33Z";
-        String stringDateResult = "2018-01-02 11:36:33";
+        String stringDateResult = "2018-01-02";
         Date date = new Date();
         Article article = new Article();
 

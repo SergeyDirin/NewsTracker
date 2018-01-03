@@ -3,6 +3,7 @@ package com.sdirin.java.newstracker.data.model;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 /**
@@ -100,14 +101,14 @@ public class Article {
     }
 
     public String getPublishedAtString() {
-        SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         sdf.setTimeZone(TimeZone.getDefault());
         return sdf.format(publishedAt);
     }
 
     public void setPublishedAtString(String publishedAt) throws ParseException {
         String prepare = publishedAt.replace('T',' ').replace("Z","");//"2009-10-10T12:12:12Z";
-        SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         sdf.setTimeZone(TimeZone.getTimeZone("UTC (+000)"));
         Date date = sdf.parse(prepare);
         this.publishedAt = date;
