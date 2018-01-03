@@ -101,7 +101,7 @@ public class Article {
     }
 
     public String getPublishedAtString() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("d MMM", Locale.getDefault());
         sdf.setTimeZone(TimeZone.getDefault());
         return sdf.format(publishedAt);
     }
