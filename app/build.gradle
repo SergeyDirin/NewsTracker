@@ -12,8 +12,15 @@ android {
     }
     buildTypes {
         release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            testCoverageEnabled true
+        }
+        debug{
+            debuggable true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            testCoverageEnabled true
         }
     }
 }
@@ -25,8 +32,9 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-    compile 'com.squareup.retrofit2:retrofit:2.3.0'
-    compile 'com.squareup.retrofit2:converter-scalars:2.1.0'
-    compile 'com.android.support:recyclerview-v7:27.0.2'
-    testCompile 'org.json:json:20140107'
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-scalars:2.1.0'
+    implementation 'com.android.support:recyclerview-v7:27.0.2'
+    testImplementation 'org.json:json:20140107'
+    implementation "com.android.support.test.espresso.idling:idling-concurrent:3.0.1"
 }

@@ -1,6 +1,7 @@
 package com.sdirin.java.newstracker;
 
 import android.os.Bundle;
+import android.support.test.espresso.idling.CountingIdlingResource;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,19 +26,28 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "NewsApp";
     NewsService mService;
 
+    //testing network support
+    private CountingIdlingResource idlingResource;
+    public boolean isInProgress;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         mService = ApiUtils.getService();
+//        getNewsFromNetwork();
+    }
 
+    public void getNewsFromNetwork(){
+        incrementIdlingResouce();
         mService.getNews().enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 if (response.isSuccessful()){
                     Toast.makeText(MainActivity.this, "loaded", Toast.LENGTH_SHORT).show();
                     displayList(response.body());
+                    decrementIdlingResource();
                 } else {
                     int statusCode = response.code();
                     Log.d(TAG, "onResponse: status code = "+statusCode);
@@ -48,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(Call<String> call, Throwable t) {
                 showErrorMessage();
                 Log.d(TAG, "onResponse: error loading from API");
+                decrementIdlingResource();
             }
         });
     }
@@ -71,5 +82,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void showErrorMessage() {
         Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
+    }
+    //testing network support
+
+    public void setCountingIdlingResource(CountingIdlingResource countingIdlingResource) {
+        this.idlingResource = countingIdlingResource;
+    }
+    private void incrementIdlingResouce(){
+        if (idlingResource != null){
+            idlingResource.increment();
+        }
+    }
+    private void decrementIdlingResource(){
+        if (idlingResource != null){
+            idlingResource.decrement();
+        }
     }
 }
