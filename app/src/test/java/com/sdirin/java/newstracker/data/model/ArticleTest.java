@@ -27,4 +27,20 @@ public class ArticleTest {
         Assert.assertEquals(stringDateResult,article.getPublishedAtString());
     }
 
+    @Test
+    public void checkSettingFormatedPublishedAt() {
+        String stringDate = "2 Jan";
+        String stringDateResult = "2 Jan";
+        Date date = new Date();
+        Article article = new Article();
+
+        try {
+            article.setPublishedAtString(stringDate);
+        } catch (ParseException e) {
+            throw new AssertionError("Parse error - "+e.getMessage());
+        }
+
+        Assert.assertEquals(stringDateResult,article.getPublishedAtString());
+    }
+
 }

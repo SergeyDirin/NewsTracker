@@ -11,7 +11,8 @@ import java.util.TimeZone;
  */
 
 public class Article {
-//    articles": [
+
+    //    articles": [
 //            -{
 //        -"source": {
 //            "id": "techcrunch",
@@ -24,6 +25,7 @@ public class Article {
 //                "urlToImage": "https://tctechcrunch2011.files.wordpress.com/2017/06/gettyimages-497874484.jpg",
 //                "publishedAt": "2017-12-31T16:06:28Z"
 //    }
+    private int dbId;
     private Source source;
     private String author;
     private String title;
@@ -34,7 +36,8 @@ public class Article {
 
     public Article(){}
 
-    public Article(Source source, String author, String title, String description, String url, String urlToImage, Date publishedAt) {
+    public Article(int dbId, Source source, String author, String title, String description, String url, String urlToImage, Date publishedAt) {
+        this.dbId = dbId;
         this.source = source;
         this.author = author;
         this.title = title;
@@ -42,6 +45,20 @@ public class Article {
         this.url = url;
         this.urlToImage = urlToImage;
         this.publishedAt = publishedAt;
+    }
+    public Article(int dbId, Source source, String author, String title, String description, String url, String urlToImage, String publishedAt) {
+        this.dbId = dbId;
+        this.source = source;
+        this.author = author;
+        this.title = title;
+        this.description = description;
+        this.url = url;
+        this.urlToImage = urlToImage;
+        try {
+            setPublishedAtString(publishedAt);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     public Source getSource() {
@@ -92,6 +109,14 @@ public class Article {
         this.urlToImage = urlToImage;
     }
 
+    public int getDbId() {
+        return dbId;
+    }
+
+    public void setDbId(int dbId) {
+        this.dbId = dbId;
+    }
+
     public Date getPublishedAt() {
         return publishedAt;
     }
@@ -108,8 +133,14 @@ public class Article {
 
     public void setPublishedAtString(String publishedAt) throws ParseException {
         String prepare = publishedAt.replace('T',' ').replace("Z","");//"2009-10-10T12:12:12Z";
-        SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC (+000)"));
+        SimpleDateFormat sdf;
+        //check if already formated
+        if (publishedAt.length() < 10){
+            sdf = new SimpleDateFormat("d MMM", Locale.getDefault());
+        } else {
+            sdf =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC (+000)"));
+        }
         this.publishedAt = sdf.parse(prepare);
     }
 }
