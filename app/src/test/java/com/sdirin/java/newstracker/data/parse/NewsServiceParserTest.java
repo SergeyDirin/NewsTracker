@@ -15,7 +15,7 @@ import java.text.ParseException;
 public class NewsServiceParserTest {
     @Test
     public void checkOkJson() {
-        NewsResponse response = null;
+        NewsResponse response;
         try {
             response = NewsServiceParser.fromJson(Requests.OK_RESP);
         } catch (ParseException e) {
@@ -33,7 +33,7 @@ public class NewsServiceParserTest {
 
     @Test
     public void checkNoApi() {
-        NewsResponse response = null;
+        NewsResponse response;
         try {
             response = NewsServiceParser.fromJson(Requests.NO_API);
         } catch (ParseException e) {
@@ -48,7 +48,7 @@ public class NewsServiceParserTest {
 
     @Test
     public void checkTooManyRequests() {
-        NewsResponse response = null;
+        NewsResponse response;
         try {
             response = NewsServiceParser.fromJson(Requests.TOO_MANY_REQUESTS);
         } catch (ParseException e) {
@@ -63,7 +63,7 @@ public class NewsServiceParserTest {
 
     @Test
     public void checkWrongApiKey() {
-        NewsResponse response = null;
+        NewsResponse response;
         try {
             response = NewsServiceParser.fromJson(Requests.WRONG_APIKEY);
         } catch (ParseException e) {
@@ -78,7 +78,7 @@ public class NewsServiceParserTest {
 
     @Test
     public void checkOkWithNull() {
-        NewsResponse response = null;
+        NewsResponse response;
         try {
             response = NewsServiceParser.fromJson(Requests.OK_WITH_NULL);
         } catch (ParseException e) {

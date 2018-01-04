@@ -1,6 +1,7 @@
 package com.sdirin.java.newstracker;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.test.espresso.idling.CountingIdlingResource;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     //testing network support
     private CountingIdlingResource idlingResource;
+    private int incrementCalls = 0;
     public boolean isInProgress;
 
     @Override
@@ -36,14 +38,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mService = ApiUtils.getService();
-//        getNewsFromNetwork();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        getNewsFromNetwork();
     }
 
     public void getNewsFromNetwork(){
         incrementIdlingResouce();
         mService.getNews().enqueue(new Callback<String>() {
             @Override
-            public void onResponse(Call<String> call, Response<String> response) {
+            public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 if (response.isSuccessful()){
                     Toast.makeText(MainActivity.this, "loaded", Toast.LENGTH_SHORT).show();
                     displayList(response.body());
@@ -55,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<String> call, Throwable t) {
+            public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
                 showErrorMessage();
                 Log.d(TAG, "onResponse: error loading from API");
                 decrementIdlingResource();
@@ -91,10 +99,17 @@ public class MainActivity extends AppCompatActivity {
     private void incrementIdlingResouce(){
         if (idlingResource != null){
             idlingResource.increment();
+        } else {
+            incrementCalls++;
         }
     }
     private void decrementIdlingResource(){
+        if (incrementCalls > 0){
+            incrementCalls--;
+            return;
+        }
         if (idlingResource != null){
+
             idlingResource.decrement();
         }
     }

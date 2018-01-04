@@ -1,5 +1,7 @@
 package com.sdirin.java.newstracker.data.network;
 
+import android.support.annotation.NonNull;
+
 import com.sdirin.java.newstracker.data.network.mock.FakeInterceptor;
 import com.sdirin.java.newstracker.data.network.mock.Requests;
 
@@ -51,7 +53,7 @@ public class RetrofitClientTest {
 
         service.getNews().enqueue(new Callback<String>() {
             @Override
-            public void onResponse(Call<String> call, Response<String> response) {
+            public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 if (response.isSuccessful()){
                     Assert.assertTrue(response.body().contains("\"status\":\"ok\""));
                 } else {
@@ -61,7 +63,7 @@ public class RetrofitClientTest {
             }
 
             @Override
-            public void onFailure(Call<String> call, Throwable t) {
+            public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
                 throw new AssertionError("Request Failed", t);
             }
         });
@@ -72,7 +74,7 @@ public class RetrofitClientTest {
         final OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(new Interceptor() {
                     @Override
-                    public okhttp3.Response intercept(Chain chain) throws IOException {
+                    public okhttp3.Response intercept(@NonNull Chain chain) throws IOException {
                         HttpUrl url = chain.request().url();
 
                         String responseString = Requests.TOO_MANY_REQUESTS;
@@ -98,7 +100,7 @@ public class RetrofitClientTest {
 
         service.getNews().enqueue(new Callback<String>() {
             @Override
-            public void onResponse(Call<String> call, Response<String> response) {
+            public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 if (response.isSuccessful()){
                     throw new AssertionError("Status code is OK " );
                 } else {
@@ -108,7 +110,7 @@ public class RetrofitClientTest {
             }
 
             @Override
-            public void onFailure(Call<String> call, Throwable t) {
+            public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
                 throw new AssertionError("Request Failed", t);
             }
         });

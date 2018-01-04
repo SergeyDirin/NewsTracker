@@ -110,7 +110,6 @@ public class Article {
         String prepare = publishedAt.replace('T',' ').replace("Z","");//"2009-10-10T12:12:12Z";
         SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         sdf.setTimeZone(TimeZone.getTimeZone("UTC (+000)"));
-        Date date = sdf.parse(prepare);
-        this.publishedAt = date;
+        this.publishedAt = sdf.parse(prepare);
     }
 }

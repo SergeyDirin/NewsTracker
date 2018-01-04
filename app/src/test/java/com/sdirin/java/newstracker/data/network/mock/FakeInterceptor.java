@@ -20,7 +20,7 @@ import okhttp3.ResponseBody;
 public class FakeInterceptor implements Interceptor {
     @Override
     public Response intercept(@NonNull Chain chain) throws IOException {
-        Response response = null;
+        Response response;
         if(BuildConfig.DEBUG) {
             String responseString;
             // Get Request URI.
