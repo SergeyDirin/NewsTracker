@@ -25,7 +25,7 @@ public class Article {
 //                "urlToImage": "https://tctechcrunch2011.files.wordpress.com/2017/06/gettyimages-497874484.jpg",
 //                "publishedAt": "2017-12-31T16:06:28Z"
 //    }
-    private int dbId;
+    private int dbId = -1;
     private Source source;
     private String author;
     private String title;

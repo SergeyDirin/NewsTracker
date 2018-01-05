@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import com.sdirin.java.newstracker.adapters.MainAdapter;
 import com.sdirin.java.newstracker.data.ApiUtils;
-import com.sdirin.java.newstracker.data.database.DatabaseHandler;
+import com.sdirin.java.newstracker.database.DatabaseHandler;
 import com.sdirin.java.newstracker.data.model.NewsResponse;
 import com.sdirin.java.newstracker.data.network.NewsService;
 import com.sdirin.java.newstracker.data.parse.NewsServiceParser;

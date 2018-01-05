@@ -1,4 +1,4 @@
-package com.sdirin.java.newstracker.data.database;
+package com.sdirin.java.newstracker.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -331,14 +331,24 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_URL_TO_IMAGE, article.getUrlToImage());
         values.put(KEY_PUBLISHED_AT, article.getPublishedAtString());
 
-        return db.update(TABLE_ARTICLES, values, KEY_ID + " = ?",
-                new String[]{Integer.toString(article.getDbId())});
+        if (article.getDbId() < 0){
+            return db.update(TABLE_ARTICLES, values, KEY_TITLE + " = ?",
+                    new String[]{article.getTitle()});
+        } else {
+            return db.update(TABLE_ARTICLES, values, KEY_ID + " = ?",
+                    new String[]{Integer.toString(article.getDbId())});
+        }
     }
 
     public void deleteArticle(Article article){
         SQLiteDatabase db = getWritableDatabase();
-        db.delete(TABLE_SOURCES, KEY_SOURCE_ID + " = ?",
-                new String[]{Integer.toString(article.getDbId())});
+        if (article.getDbId() < 0){
+            db.delete(TABLE_ARTICLES, KEY_TITLE + " = ?",
+                    new String[]{article.getTitle()});
+        } else {
+            db.delete(TABLE_ARTICLES, KEY_ID + " = ?",
+                    new String[]{Integer.toString(article.getDbId())});
+        }
         db.close();
     }
 
