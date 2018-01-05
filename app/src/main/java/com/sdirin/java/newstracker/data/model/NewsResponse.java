@@ -1,5 +1,6 @@
 package com.sdirin.java.newstracker.data.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -87,5 +88,22 @@ public class NewsResponse {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public void combineWith(NewsResponse newsResponse){
+        List<Article> articleToAdd = new ArrayList<>();
+        for (Article newArticle : newsResponse.getArticles()) {
+            boolean found = false;
+            for (Article article: articles)
+            if (article.getTitle().equals(newArticle.getTitle())){
+                found = true;
+                break;
+            }
+            if (! found){
+                articleToAdd.add(newArticle);
+            }
+        }
+
+        articles.addAll(articleToAdd);
     }
 }

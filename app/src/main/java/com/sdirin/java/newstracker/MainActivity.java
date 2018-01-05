@@ -60,12 +60,18 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 if (response.isSuccessful()){
                     Toast.makeText(MainActivity.this, "loaded network", Toast.LENGTH_SHORT).show();
+                    NewsResponse newsResponseNetwork;
                     try {
-                        newsResponse = NewsServiceParser.fromJson(response.body());
+                        newsResponseNetwork = NewsServiceParser.fromJson(response.body());
                     } catch (ParseException e) {
                         e.printStackTrace();
                         Toast.makeText(MainActivity.this, "Error loading news", Toast.LENGTH_SHORT).show();
                         return;
+                    }
+                    if (newsResponse == null){
+                        newsResponse = newsResponseNetwork;
+                    } else {
+                        newsResponse.combineWith(newsResponseNetwork );
                     }
                     safeToDb(newsResponse);
                     displayList(newsResponse);
