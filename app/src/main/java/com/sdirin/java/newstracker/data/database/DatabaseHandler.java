@@ -50,6 +50,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      */
     public static final String KEY_NAME = "name";
 
+
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -106,7 +107,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             return null;
         }
 
-        cursor.moveToFirst();
+        if (!cursor.moveToFirst()){
+            cursor.close();
+            return null;
+        }
         Source source = new Source(cursor.getString(1),
                 cursor.getString(2));
         cursor.close();
@@ -164,11 +168,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      * Articles CRUD
      */
     public void addArticle(Article article){
-        SQLiteDatabase db = this.getWritableDatabase();
 
         Source source = getSource(article.getSource().getId());
         if (source == null){
             addSource(article.getSource());
+        }
+        Article oldArticle = getArticleByTitle(article.getTitle());
+        if (oldArticle != null){
+            return;
         }
 
         ContentValues values = new ContentValues();
@@ -180,6 +187,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_URL_TO_IMAGE, article.getUrlToImage());
         values.put(KEY_PUBLISHED_AT, article.getPublishedAtString());
 
+        SQLiteDatabase db = getWritableDatabase();
         db.insert(TABLE_ARTICLES, null, values);
         db.close();
     }
@@ -205,8 +213,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.moveToFirst();
         Article article = new Article();
         article.setDbId(Integer.parseInt(cursor.getString(0)));
-        Source source = getSource(cursor.getString(1));
-        article.setSource(source);
         article.setAuthor(cursor.getString(2));
         article.setTitle(cursor.getString(3));
         article.setDescription(cursor.getString(4));
@@ -218,6 +224,57 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             e.printStackTrace();
         }
 
+        Source source = getSource(cursor.getString(1));
+        if (source == null){
+            cursor.close();
+            return null;
+        }
+        article.setSource(source);
+        cursor.close();
+        return article;
+    }
+
+    public Article getArticleByTitle(String title){
+        SQLiteDatabase db = getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_ARTICLES,
+                new String[]{KEY_ID,
+                        KEY_SOURCE_ID,
+                        KEY_AUTHOR,
+                        KEY_TITLE,
+                        KEY_DESCRIPTION,
+                        KEY_URL,
+                        KEY_URL_TO_IMAGE,
+                        KEY_PUBLISHED_AT},
+                KEY_TITLE + "=?",
+                new String[]{title},null,null,null);
+        if (cursor == null) {
+            return null;
+        }
+
+        if (!cursor.moveToFirst()) {
+            cursor.close();
+            return null;
+        }
+        Article article = new Article();
+        article.setDbId(Integer.parseInt(cursor.getString(0)));
+        article.setAuthor(cursor.getString(2));
+        article.setTitle(cursor.getString(3));
+        article.setDescription(cursor.getString(4));
+        article.setUrl(cursor.getString(5));
+        article.setUrlToImage(cursor.getString(6));
+        try {
+            article.setPublishedAtString(cursor.getString(7));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        Source source = getSource(cursor.getString(1));
+        if (source == null){
+            cursor.close();
+            return null;
+        }
+        article.setSource(source);
         cursor.close();
         return article;
     }
@@ -226,7 +283,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         List<Article> articleList = new ArrayList<>();
 
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT a.*,s.name FROM "+TABLE_ARTICLES+" s, " + TABLE_SOURCES + " s WHERE a."+KEY_SOURCE_ID+"=s."+KEY_SOURCE_ID,null);
+        Cursor cursor = db.rawQuery("SELECT a.*,s.name FROM "+TABLE_ARTICLES+" a, " + TABLE_SOURCES + " s WHERE a."+KEY_SOURCE_ID+"=s."+KEY_SOURCE_ID,null);
 
         if (cursor == null) {
             return null;

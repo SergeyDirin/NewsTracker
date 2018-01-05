@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.sdirin.java.newstracker.adapters.MainAdapter;
 import com.sdirin.java.newstracker.data.ApiUtils;
+import com.sdirin.java.newstracker.data.database.DatabaseHandler;
 import com.sdirin.java.newstracker.data.model.NewsResponse;
 import com.sdirin.java.newstracker.data.network.NewsService;
 import com.sdirin.java.newstracker.data.parse.NewsServiceParser;
@@ -26,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "NewsApp";
     NewsService mService;
+    NewsResponse newsResponse;
+    DatabaseHandler db;
 
     //testing network support
     private CountingIdlingResource idlingResource;
@@ -38,12 +41,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mService = ApiUtils.getService();
+        db = new DatabaseHandler(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
+        loadFromDB();
+        displayList(newsResponse);
         getNewsFromNetwork();
     }
 
@@ -53,8 +59,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 if (response.isSuccessful()){
-                    Toast.makeText(MainActivity.this, "loaded", Toast.LENGTH_SHORT).show();
-                    displayList(response.body());
+                    Toast.makeText(MainActivity.this, "loaded network", Toast.LENGTH_SHORT).show();
+                    try {
+                        newsResponse = NewsServiceParser.fromJson(response.body());
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        Toast.makeText(MainActivity.this, "Error loading news", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    safeToDb(newsResponse);
+                    displayList(newsResponse);
                     decrementIdlingResource();
                 } else {
                     int statusCode = response.code();
@@ -71,21 +85,26 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void displayList(String json) {
-        try {
-            NewsResponse response = NewsServiceParser.fromJson(json);
-
-            MainAdapter adapter = new MainAdapter(response);
-            RecyclerView list = findViewById(R.id.news_list);
-            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-            list.setLayoutManager(layoutManager);
-            list.setItemAnimator(new DefaultItemAnimator());
-            list.setAdapter(adapter);
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-            Toast.makeText(MainActivity.this, "Parse error", Toast.LENGTH_SHORT).show();
+    private void safeToDb(NewsResponse response) {
+        for (int i=0; i<response.getArticles().size(); i++){
+            db.addArticle(response.getArticles().get(i));
         }
+    }
+
+    private void loadFromDB() {
+        newsResponse = new NewsResponse();
+        newsResponse.setMessage("ok");
+        Toast.makeText(MainActivity.this, "loaded DB", Toast.LENGTH_SHORT).show();
+        newsResponse.setArticles(db.getAllArticles());
+    }
+
+    private void displayList(NewsResponse response) {
+        MainAdapter adapter = new MainAdapter(response);
+        RecyclerView list = findViewById(R.id.news_list);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        list.setLayoutManager(layoutManager);
+        list.setItemAnimator(new DefaultItemAnimator());
+        list.setAdapter(adapter);
     }
 
     private void showErrorMessage() {
