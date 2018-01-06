@@ -91,6 +91,12 @@ public class NewsResponse {
     }
 
     public void combineWith(NewsResponse newsResponse){
+        if (articles == null) {
+            articles = new ArrayList<>();
+        }
+        if (newsResponse.articles == null) {
+            return;
+        }
         List<Article> articleToAdd = new ArrayList<>();
         for (Article newArticle : newsResponse.getArticles()) {
             boolean found = false;

@@ -14,12 +14,16 @@ import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static com.sdirin.java.newstracker.utils.RecyclerViewItemCountAssertion.withItemCount;
 import static com.sdirin.java.newstracker.utils.Utils.atPosition;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
 
 /**
  * Created by SDirin on 03-Jan-18.
  */
 public class MainActivityTest  {
+    //fake testing url
+    private static final String BASE_URL = "http://fantasy.world.com/";
 
     @Rule
     public ActivityTestRule<MainActivity> activityTestRule =
@@ -32,18 +36,59 @@ public class MainActivityTest  {
         onView(withId(R.id.news_list)).check(matches(isDisplayed()));
     }
     @Test
-    public void checkTitleIsVisible() {
+    public void checkByIsVisible() {
         activityTestRule.launchActivity(new  Intent());
 
         CountingIdlingResource countingIdlingResource = new CountingIdlingResource("MainActivity Network");
         activityTestRule.getActivity().setCountingIdlingResource(countingIdlingResource);
-        activityTestRule.getActivity().getNewsFromNetwork();
         IdlingRegistry.getInstance().register(countingIdlingResource);
 
         onView(withId(R.id.news_list))
                 .check(matches(atPosition(0, hasDescendant(withText("by")))));
+    }
+    @Test
+    public void checkListCount() {
+        activityTestRule.launchActivity(new  Intent());
+
+        CountingIdlingResource countingIdlingResource = new CountingIdlingResource("MainActivity Network");
+        activityTestRule.getActivity().setCountingIdlingResource(countingIdlingResource);
+        IdlingRegistry.getInstance().register(countingIdlingResource);
+
+        onView(withId(R.id.news_list)).check(withItemCount(greaterThan(9)));
 //        onView(withId(R.id.news_list))
 //                .check(matches(atPosition(0, hasDescendant(withDrawable(R.drawable.placeholder)))));
+    }
+
+    @Test
+    public void checkListTextWithGivenResponse() {
+//        activityTestRule.launchActivity(new  Intent());
+//        ServiceProvider mockedNewsService = mock(ServiceProvider.class);
+//        NewsService service = RetrofitClient.getClient(BASE_URL).create(NewsService.class);
+//
+//        final OkHttpClient client = new OkHttpClient.Builder()
+//                .addInterceptor(new FakeInterceptor())
+//                .build();
+//
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl(BASE_URL)
+//                .addConverterFactory(ScalarsConverterFactory.create())
+//                .client(client)
+//                .build();
+//
+//        service = retrofit.create(NewsService.class);
+//        when(mockedNewsService.getService()).thenReturn(service);
+//        MainActivity mainActivity = mock(MainActivity.class);
+////        when(mainActivity.loadFromDB()).thenReturn(null);
+//
+//        CountingIdlingResource countingIdlingResource = new CountingIdlingResource("MainActivity Network");
+//        activityTestRule.getActivity().setCountingIdlingResource(countingIdlingResource);
+//        IdlingRegistry.getInstance().register(countingIdlingResource);
+//
+//
+//
+//        onView(withId(R.id.news_list)).check(withItemCount(2));
+////        onView(withId(R.id.news_list))
+////                .check(matches(atPosition(0, hasDescendant(withDrawable(R.drawable.placeholder)))));
     }
 
 }

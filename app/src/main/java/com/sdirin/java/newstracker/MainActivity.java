@@ -1,141 +1,81 @@
 package com.sdirin.java.newstracker;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.test.espresso.idling.CountingIdlingResource;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.sdirin.java.newstracker.adapters.MainAdapter;
-import com.sdirin.java.newstracker.data.ApiUtils;
-import com.sdirin.java.newstracker.database.DatabaseHandler;
 import com.sdirin.java.newstracker.data.model.NewsResponse;
-import com.sdirin.java.newstracker.data.network.NewsService;
-import com.sdirin.java.newstracker.data.parse.NewsServiceParser;
+import com.sdirin.java.newstracker.database.DatabaseHandler;
+import com.sdirin.java.newstracker.presenters.MainPresenter;
+import com.sdirin.java.newstracker.view.MainScreen;
 
-import java.text.ParseException;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MainScreen {
 
     private static final String TAG = "NewsApp";
-    NewsService mService;
     NewsResponse newsResponse;
-    DatabaseHandler db;
+    MainPresenter presenter;
 
-    //testing network support
-    private CountingIdlingResource idlingResource;
-    private int incrementCalls = 0;
-    public boolean isInProgress;
+    MainAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mService = ApiUtils.getService();
-        db = new DatabaseHandler(this);
+        presenter = new MainPresenter(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        loadFromDB();
-        displayList(newsResponse);
-        getNewsFromNetwork();
+        presenter.onResume();
+        displayList();
     }
 
-    public void getNewsFromNetwork(){
-        incrementIdlingResouce();
-        mService.getNews().enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                if (response.isSuccessful()){
-                    Toast.makeText(MainActivity.this, "loaded network", Toast.LENGTH_SHORT).show();
-                    NewsResponse newsResponseNetwork;
-                    try {
-                        newsResponseNetwork = NewsServiceParser.fromJson(response.body());
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                        Toast.makeText(MainActivity.this, "Error loading news", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    if (newsResponse == null){
-                        newsResponse = newsResponseNetwork;
-                    } else {
-                        newsResponse.combineWith(newsResponseNetwork );
-                    }
-                    safeToDb(newsResponse);
-                    displayList(newsResponse);
-                    decrementIdlingResource();
-                } else {
-                    int statusCode = response.code();
-                    Log.d(TAG, "onResponse: status code = "+statusCode);
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                showErrorMessage();
-                Log.d(TAG, "onResponse: error loading from API");
-                decrementIdlingResource();
-            }
-        });
+    public MainPresenter getPresenter(){
+        return presenter;
     }
 
-    private void safeToDb(NewsResponse response) {
-        for (int i=0; i<response.getArticles().size(); i++){
-            db.addArticle(response.getArticles().get(i));
+    public void setNewsResponse(NewsResponse newsResponse){
+        if (this.newsResponse == null){
+            this.newsResponse = new NewsResponse();
         }
+        this.newsResponse.combineWith(newsResponse);
     }
 
-    private void loadFromDB() {
-        newsResponse = new NewsResponse();
-        newsResponse.setMessage("ok");
-        Toast.makeText(MainActivity.this, "loaded DB", Toast.LENGTH_SHORT).show();
-        newsResponse.setArticles(db.getAllArticles());
-    }
-
-    private void displayList(NewsResponse response) {
-        MainAdapter adapter = new MainAdapter(response);
-        RecyclerView list = findViewById(R.id.news_list);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        list.setLayoutManager(layoutManager);
-        list.setItemAnimator(new DefaultItemAnimator());
-        list.setAdapter(adapter);
-    }
-
-    private void showErrorMessage() {
-        Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
-    }
-    //testing network support
-
-    public void setCountingIdlingResource(CountingIdlingResource countingIdlingResource) {
-        this.idlingResource = countingIdlingResource;
-    }
-    private void incrementIdlingResouce(){
-        if (idlingResource != null){
-            idlingResource.increment();
-        } else {
-            incrementCalls++;
-        }
-    }
-    private void decrementIdlingResource(){
-        if (incrementCalls > 0){
-            incrementCalls--;
+    public void displayList() {
+        if (newsResponse == null) {
             return;
         }
-        if (idlingResource != null){
-
-            idlingResource.decrement();
+        RecyclerView list = findViewById(R.id.news_list);
+        if (adapter == null){
+            adapter = new MainAdapter(newsResponse);
+            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+            list.setLayoutManager(layoutManager);
+            list.setItemAnimator(new DefaultItemAnimator());
+            list.setAdapter(adapter);
+        } else {
+            list.invalidate();
         }
+
+    }
+
+    @Override
+    public DatabaseHandler getDb() {
+        return new DatabaseHandler(this);
+    }
+
+    public void showErrorMessage() {
+        Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
+    }
+
+    public void setCountingIdlingResource(CountingIdlingResource countingIdlingResource) {
+        presenter.setCountingIdlingResource(countingIdlingResource);
     }
 }

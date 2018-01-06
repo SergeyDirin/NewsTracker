@@ -1,4 +1,4 @@
-package com.sdirin.java.newstracker.data.network.mock;
+package com.sdirin.java.newstracker.utils;
 
 /**
  * Created by SDirin on 02-Jan-18.
