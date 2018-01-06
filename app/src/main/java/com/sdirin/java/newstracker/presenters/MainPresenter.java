@@ -51,9 +51,10 @@ public class MainPresenter {
 
     public void onResume(){
         loadFromDB();
+        loadFromNetwork();
     }
 
-    private void getNewsFromNetwork(){
+    private void loadFromNetwork(){
         incrementIdlingResouce();
         mService.getNews().enqueue(new Callback<String>() {
             @Override
@@ -74,6 +75,7 @@ public class MainPresenter {
                         newsResponse.combineWith(newsResponseNetwork );
                     }
                     safeToDb(newsResponse);
+                    screen.setNewsResponse(newsResponse);
                     screen.displayList();
                 } else {
                     int statusCode = response.code();
