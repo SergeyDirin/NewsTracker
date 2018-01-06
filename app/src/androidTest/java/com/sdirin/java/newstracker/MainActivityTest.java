@@ -10,12 +10,14 @@ import org.junit.Test;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.contrib.RecyclerViewActions.scrollToPosition;
 import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.sdirin.java.newstracker.utils.RecyclerViewItemCountAssertion.withItemCount;
 import static com.sdirin.java.newstracker.utils.Utils.atPosition;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 
 /**
@@ -60,35 +62,18 @@ public class MainActivityTest  {
     }
 
     @Test
-    public void checkListTextWithGivenResponse() {
-//        activityTestRule.launchActivity(new  Intent());
-//        ServiceProvider mockedNewsService = mock(ServiceProvider.class);
-//        NewsService service = RetrofitClient.getClient(BASE_URL).create(NewsService.class);
-//
-//        final OkHttpClient client = new OkHttpClient.Builder()
-//                .addInterceptor(new FakeInterceptor())
-//                .build();
-//
-//        Retrofit retrofit = new Retrofit.Builder()
-//                .baseUrl(BASE_URL)
-//                .addConverterFactory(ScalarsConverterFactory.create())
-//                .client(client)
-//                .build();
-//
-//        service = retrofit.create(NewsService.class);
-//        when(mockedNewsService.getService()).thenReturn(service);
-//        MainActivity mainActivity = mock(MainActivity.class);
-////        when(mainActivity.loadFromDB()).thenReturn(null);
-//
-//        CountingIdlingResource countingIdlingResource = new CountingIdlingResource("MainActivity Network");
-//        activityTestRule.getActivity().setCountingIdlingResource(countingIdlingResource);
-//        IdlingRegistry.getInstance().register(countingIdlingResource);
-//
-//
-//
-//        onView(withId(R.id.news_list)).check(withItemCount(2));
-////        onView(withId(R.id.news_list))
-////                .check(matches(atPosition(0, hasDescendant(withDrawable(R.drawable.placeholder)))));
+    public void checkListScroling() {
+        activityTestRule.launchActivity(new  Intent());
+
+        CountingIdlingResource countingIdlingResource = new CountingIdlingResource("MainActivity Network");
+        activityTestRule.getActivity().setCountingIdlingResource(countingIdlingResource);
+        IdlingRegistry.getInstance().register(countingIdlingResource);
+
+        onView(withId(R.id.news_list)).check(withItemCount(greaterThan(9)));
+        onView(withId(R.id.news_list))
+                .perform(scrollToPosition(9)).check(matches(atPosition(9,
+                allOf(hasDescendant(withText("by")),isDisplayed())
+        )));
     }
 
 }

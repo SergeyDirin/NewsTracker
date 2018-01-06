@@ -16,4 +16,6 @@ public interface MainScreen {
     void displayList();
 
     void setNewsResponse(NewsResponse newsResponse);
+
+    void logD(String message);
 }

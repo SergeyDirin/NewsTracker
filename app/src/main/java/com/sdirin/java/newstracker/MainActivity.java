@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.sdirin.java.newstracker.adapters.MainAdapter;
@@ -64,6 +65,10 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
             list.invalidate();
         }
 
+    }
+
+    public void logD(String message){
+        Log.d(TAG,message);
     }
 
     @Override

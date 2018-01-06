@@ -2,7 +2,6 @@ package com.sdirin.java.newstracker.presenters;
 
 import android.support.annotation.NonNull;
 import android.support.test.espresso.idling.CountingIdlingResource;
-import android.util.Log;
 
 import com.sdirin.java.newstracker.data.ServiceProvider;
 import com.sdirin.java.newstracker.data.model.NewsResponse;
@@ -23,13 +22,12 @@ import retrofit2.Response;
  */
 
 public class MainPresenter {
-    private static final String TAG = "NewsApp";
 
-    NewsResponse newsResponse;
-    NewsService mService;
-    DatabaseHandler db;
+    private NewsResponse newsResponse;
+    private NewsService mService;
+    private DatabaseHandler db;
 
-    MainScreen screen;
+    private MainScreen screen;
 
     //testing network support
     private CountingIdlingResource idlingResource;
@@ -44,7 +42,7 @@ public class MainPresenter {
     private void loadFromDB() {
         newsResponse = new NewsResponse();
         newsResponse.setMessage("ok");
-        Log.d(TAG,"loaded DB");
+        screen.logD("loaded DB");
         newsResponse.setArticles(db.getAllArticles());
         screen.setNewsResponse(newsResponse);
     }
@@ -60,13 +58,13 @@ public class MainPresenter {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 if (response.isSuccessful()){
-                    Log.d(TAG,"loaded network");
+                    screen.logD("loaded network");
                     NewsResponse newsResponseNetwork;
                     try {
                         newsResponseNetwork = NewsServiceParser.fromJson(response.body());
                     } catch (ParseException e) {
                         e.printStackTrace();
-                        Log.d(TAG,"Error loading news");
+                        screen.logD("Error loading news");
                         return;
                     }
                     if (newsResponse == null){
@@ -79,7 +77,7 @@ public class MainPresenter {
                     screen.displayList();
                 } else {
                     int statusCode = response.code();
-                    Log.d(TAG, "onResponse: status code = "+statusCode);
+                    screen.logD("onResponse: status code = "+statusCode);
                 }
                 decrementIdlingResource();
             }
@@ -87,7 +85,7 @@ public class MainPresenter {
             @Override
             public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
                 screen.showErrorMessage();
-                Log.d(TAG, "onResponse: error loading from API");
+                screen.logD("onResponse: error loading from API");
                 decrementIdlingResource();
             }
         });
