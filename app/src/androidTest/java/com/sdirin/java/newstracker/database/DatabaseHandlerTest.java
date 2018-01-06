@@ -129,16 +129,17 @@ public class DatabaseHandlerTest {
         addArticle();
         Article dbArticle = db.getArticleByTitle("Test Article Title");
         dbArticle.setDbId(-1);
-        dbArticle.setTitle("Test Article UPDATED Title");
+        dbArticle.setDescription("Test Article UPDATED Description");
         db.updateArticle(dbArticle);
-        dbArticle = db.getArticleByTitle("Test Article UPDATED Title");
+        dbArticle = db.getArticleByTitle("Test Article Title");
         if (dbArticle == null){
-            Assert.fail("Can not find inserted Article");
+            Assert.fail("Can not find updated Article");
+            return;
         }
         Assert.assertEquals("TesteSourceId",dbArticle.getSource().getId());
         Assert.assertEquals("TestSourse",dbArticle.getSource().getName());
         Assert.assertEquals("Test Article Author",dbArticle.getAuthor());
-        Assert.assertEquals("Test Article Description",dbArticle.getDescription());
+        Assert.assertEquals("Test Article UPDATED Description",dbArticle.getDescription());
         Assert.assertEquals("Test Article UrlToImage",dbArticle.getUrlToImage());
         Assert.assertEquals("5 Jan",dbArticle.getPublishedAtString());
     }
