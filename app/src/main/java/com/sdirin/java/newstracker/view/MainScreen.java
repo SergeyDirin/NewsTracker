@@ -18,4 +18,6 @@ public interface MainScreen {
     void setNewsResponse(NewsResponse newsResponse);
 
     void logD(String message);
+
+    boolean isInternetAvailable();
 }

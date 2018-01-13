@@ -17,7 +17,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,9 +36,6 @@ public class MainPresenterTest {
 
     @Before
     public void setUp() throws Exception {
-        screenMock = mock(MainScreen.class);
-        dbMock = mock(DatabaseHandler.class);
-        logMock = mock(Log.class);
 
         MockitoAnnotations.initMocks(this);
     }

@@ -2,4 +2,7 @@
     <string name="app_name">NewsTracker</string>
     <string name="by">by</string>
     <string name="news_item_image_description">news item image</string>
+    <string name="unavailable_network">Network is unavalilable</string>
+    <string name="no_internet_access">No internet access</string>
+    <string name="wifi_not_available">Wifi is not awailable</string>
 </resources>
