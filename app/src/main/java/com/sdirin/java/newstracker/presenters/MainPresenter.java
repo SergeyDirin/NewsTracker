@@ -53,9 +53,12 @@ public class MainPresenter {
     }
 
     private void loadFromNetwork(){
-        if (!screen.isInternetAvailable()){
-            return;
+        if (screen.isInternetAvailable()){
+            onPermitionGranted();
         }
+    }
+
+    public void onPermitionGranted(){
         incrementIdlingResouce();
         mService.getNews().enqueue(new Callback<String>() {
             @Override

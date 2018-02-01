@@ -5,6 +5,8 @@ import android.support.test.espresso.IdlingRegistry;
 import android.support.test.espresso.idling.CountingIdlingResource;
 import android.support.test.rule.ActivityTestRule;
 
+import com.sdirin.java.newstracker.activities.MainActivity;
+
 import org.junit.Rule;
 import org.junit.Test;
 

@@ -1,10 +1,16 @@
-package com.sdirin.java.newstracker;
+package com.sdirin.java.newstracker.activities;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.test.espresso.idling.CountingIdlingResource;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,6 +18,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.sdirin.java.newstracker.R;
 import com.sdirin.java.newstracker.adapters.MainAdapter;
 import com.sdirin.java.newstracker.data.ServiceProvider;
 import com.sdirin.java.newstracker.data.model.NewsResponse;
@@ -24,11 +31,11 @@ import java.net.InetAddress;
 public class MainActivity extends AppCompatActivity implements MainScreen {
 
     private static final String TAG = "NewsApp";
+    private static final int PERMISSIONS_REQUEST_EXTERNAL_STORAGE = 1;
     NewsResponse newsResponse;
     MainPresenter presenter;
 
     MainAdapter adapter;
-
 
     public static int TYPE_WIFI = 1;
     public static int TYPE_MOBILE = 2;
@@ -40,6 +47,17 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
         setContentView(R.layout.activity_main);
 
         presenter = new MainPresenter(this);
+
+        ConnectivityManager cm = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            cm.addDefaultNetworkActiveListener(new ConnectivityManager.OnNetworkActiveListener() {
+                @Override
+                public void onNetworkActive() {
+
+                }
+            });
+        }
     }
 
     @Override
@@ -84,27 +102,58 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
 
     @Override
     public boolean isInternetAvailable() {
-        if (getConnectivityStatus() == TYPE_NOT_CONNECTED){
-            Toast.makeText(this, R.string.unavailable_network, Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        if (getConnectivityStatus() == TYPE_MOBILE) {
-            Toast.makeText(this, R.string.wifi_not_available, Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        try {
-            InetAddress ipAddr = InetAddress.getByName(ServiceProvider.BASE_HOST);
-            if(ipAddr.equals("")) {
+
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[] {Manifest.permission.INTERNET,
+                            Manifest.permission.ACCESS_WIFI_STATE,
+                            Manifest.permission.ACCESS_NETWORK_STATE},
+                    PERMISSIONS_REQUEST_EXTERNAL_STORAGE);
+        } else {
+            if (getConnectivityStatus() == TYPE_NOT_CONNECTED){
+                Toast.makeText(this, R.string.unavailable_network, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            if (getConnectivityStatus() == TYPE_MOBILE) {
+                Toast.makeText(this, R.string.wifi_not_available, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            try {
+                InetAddress ipAddr = InetAddress.getByName(ServiceProvider.BASE_HOST);
+                if(ipAddr.equals("")) {
+                    Toast.makeText(this, R.string.no_internet_access, Toast.LENGTH_SHORT).show();
+                    return false;
+                } else {
+                    return true;
+                }
+
+            } catch (Exception e) {
                 Toast.makeText(this, R.string.no_internet_access, Toast.LENGTH_SHORT).show();
                 return false;
-            } else {
-                return true;
             }
-
-        } catch (Exception e) {
-            Toast.makeText(this, R.string.no_internet_access, Toast.LENGTH_SHORT).show();
-            return false;
         }
+        return false;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == PERMISSIONS_REQUEST_EXTERNAL_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                presenter.onPermitionGranted();
+            } else {
+
+                // permission denied, boo! Disable the
+                // functionality that depends on this permission.
+            }
+        } else {
+
+            // Ignore all other requests.
+        }
+
     }
 
     public int getConnectivityStatus() {
