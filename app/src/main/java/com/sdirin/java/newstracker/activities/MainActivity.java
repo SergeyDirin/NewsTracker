@@ -101,40 +101,44 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
     }
 
     @Override
-    public boolean isInternetAvailable() {
-
-        int permissionCheck = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+    public boolean isPermitionGranted(){
+        return ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+    }
+    @Override
+    public void askPermition(){
+        if (!isPermitionGranted()) {
             ActivityCompat.requestPermissions(this,
                     new String[] {Manifest.permission.INTERNET,
                             Manifest.permission.ACCESS_WIFI_STATE,
                             Manifest.permission.ACCESS_NETWORK_STATE},
                     PERMISSIONS_REQUEST_EXTERNAL_STORAGE);
-        } else {
-            if (getConnectivityStatus() == TYPE_NOT_CONNECTED){
-                Toast.makeText(this, R.string.unavailable_network, Toast.LENGTH_SHORT).show();
-                return false;
-            }
-            if (getConnectivityStatus() == TYPE_MOBILE) {
-                Toast.makeText(this, R.string.wifi_not_available, Toast.LENGTH_SHORT).show();
-                return false;
-            }
-            try {
-                InetAddress ipAddr = InetAddress.getByName(ServiceProvider.BASE_HOST);
-                if(ipAddr.equals("")) {
-                    Toast.makeText(this, R.string.no_internet_access, Toast.LENGTH_SHORT).show();
-                    return false;
-                } else {
-                    return true;
-                }
+        }
+    }
+    @Override
+    public boolean isInternetAvailable() {
 
-            } catch (Exception e) {
+        if (getConnectivityStatus() == TYPE_NOT_CONNECTED){
+            Toast.makeText(this, R.string.unavailable_network, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (getConnectivityStatus() == TYPE_MOBILE) {
+            Toast.makeText(this, R.string.wifi_not_available, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        try {
+            InetAddress ipAddr = InetAddress.getByName(ServiceProvider.BASE_HOST);
+            if(ipAddr.equals("")) {
                 Toast.makeText(this, R.string.no_internet_access, Toast.LENGTH_SHORT).show();
                 return false;
+            } else {
+                return true;
             }
+
+        } catch (Exception e) {
+            Toast.makeText(this, R.string.no_internet_access, Toast.LENGTH_SHORT).show();
+            return false;
         }
-        return false;
     }
 
     @Override
@@ -143,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
 
         if (requestCode == PERMISSIONS_REQUEST_EXTERNAL_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                presenter.onPermitionGranted();
+//                presenter.onPermitionGranted();
             } else {
 
                 // permission denied, boo! Disable the

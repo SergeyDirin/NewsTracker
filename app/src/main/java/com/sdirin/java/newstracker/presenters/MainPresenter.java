@@ -32,6 +32,7 @@ public class MainPresenter {
     //testing network support
     private CountingIdlingResource idlingResource;
     private int incrementCalls = 0;
+    private boolean isLoadedWithPermition = false;
 
     public MainPresenter(MainScreen screen){
         mService = new ServiceProvider().getService();
@@ -42,9 +43,15 @@ public class MainPresenter {
     private void loadFromDB() {
         newsResponse = new NewsResponse();
         newsResponse.setMessage("ok");
-        screen.logD("loaded DB");
+//        screen.logD("loaded DB");
         newsResponse.setArticles(db.getAllArticles());
         screen.setNewsResponse(newsResponse);
+    }
+
+    public void onStart(){
+        if (!screen.isPermitionGranted()){
+            screen.askPermition();
+        }
     }
 
     public void onResume(){
@@ -53,18 +60,23 @@ public class MainPresenter {
     }
 
     private void loadFromNetwork(){
-        if (screen.isInternetAvailable()){
-            onPermitionGranted();
-        }
+            if (screen.isInternetAvailable()){
+                onPermitionGranted();
+            }
     }
 
     public void onPermitionGranted(){
+        screen.logD("onPermitionGranted");
+//        if (isLoadedWithPermition){
+//            return;
+//        }
+//        isLoadedWithPermition = true;
         incrementIdlingResouce();
         mService.getNews().enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 if (response.isSuccessful()){
-                    screen.logD("loaded network");
+                    //screen.logD("loaded network");
                     NewsResponse newsResponseNetwork;
                     try {
                         newsResponseNetwork = NewsServiceParser.fromJson(response.body());
@@ -83,7 +95,7 @@ public class MainPresenter {
                     screen.displayList();
                 } else {
                     int statusCode = response.code();
-                    screen.logD("onResponse: status code = "+statusCode);
+                    //screen.logD("onResponse: status code = "+statusCode);
                 }
                 decrementIdlingResource();
             }

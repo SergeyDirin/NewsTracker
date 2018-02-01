@@ -20,4 +20,6 @@ public interface MainScreen {
     void logD(String message);
 
     boolean isInternetAvailable();
+    boolean isPermitionGranted();
+    void askPermition();
 }
