@@ -1,16 +1,16 @@
 package com.sdirin.java.newstracker.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.sdirin.java.newstracker.R;
+import com.sdirin.java.newstracker.activities.DetailActivity;
 import com.sdirin.java.newstracker.data.model.Article;
 import com.sdirin.java.newstracker.data.model.NewsResponse;
 import com.squareup.picasso.Picasso;
@@ -55,25 +55,18 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
         holder.author.setText(article.getAuthor());
         holder.date.setText(article.getPublishedAtString());
         holder.description.setText(article.getDescription());
-        holder.mainImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("NEWS", "image clicked");
-                Toast.makeText(context, "Starting activity "+article.getUrl(), Toast.LENGTH_SHORT).show();
-//                Intent intent = new Intent(context, DetailActivity.class);
-//                intent.putExtra("EXTRA_URL", article.getUrl());
-//                context.startActivity(intent);
-            }
-        });
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "Starting activity "+article.getUrl(), Toast.LENGTH_SHORT).show();
-//                Intent intent = new Intent(context, DetailActivity.class);
-//                intent.putExtra("EXTRA_URL", article.getUrl());
-//                context.startActivity(intent);
+                startDetailView(article);
             }
         });
+    }
+
+    private void startDetailView(Article article) {
+        Intent intent = new Intent(context, DetailActivity.class);
+        intent.putExtra("EXTRA_URL", article.getUrl());
+        context.startActivity(intent);
     }
 
     @Override

@@ -20,18 +20,15 @@ import android.widget.Toast;
 
 import com.sdirin.java.newstracker.R;
 import com.sdirin.java.newstracker.adapters.MainAdapter;
-import com.sdirin.java.newstracker.data.ServiceProvider;
 import com.sdirin.java.newstracker.data.model.NewsResponse;
 import com.sdirin.java.newstracker.database.DatabaseHandler;
 import com.sdirin.java.newstracker.presenters.MainPresenter;
 import com.sdirin.java.newstracker.view.MainScreen;
 
-import java.net.InetAddress;
-
 public class MainActivity extends AppCompatActivity implements MainScreen {
 
     private static final String TAG = "NewsApp";
-    private static final int PERMISSIONS_REQUEST_EXTERNAL_STORAGE = 1;
+    private static final int PERMISSIONS_REQUEST_INTERNET = 1;
     NewsResponse newsResponse;
     MainPresenter presenter;
 
@@ -66,6 +63,13 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
 
         presenter.onResume();
         displayList();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+//        presenter.onStart();
+        askPermition();
     }
 
     public MainPresenter getPresenter(){
@@ -109,10 +113,8 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
     public void askPermition(){
         if (!isPermitionGranted()) {
             ActivityCompat.requestPermissions(this,
-                    new String[] {Manifest.permission.INTERNET,
-                            Manifest.permission.ACCESS_WIFI_STATE,
-                            Manifest.permission.ACCESS_NETWORK_STATE},
-                    PERMISSIONS_REQUEST_EXTERNAL_STORAGE);
+                    new String[] {Manifest.permission.INTERNET},
+                    PERMISSIONS_REQUEST_INTERNET);
         }
     }
     @Override
@@ -126,30 +128,20 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
             Toast.makeText(this, R.string.wifi_not_available, Toast.LENGTH_SHORT).show();
             return false;
         }
-        try {
-            InetAddress ipAddr = InetAddress.getByName(ServiceProvider.BASE_HOST);
-            if(ipAddr.equals("")) {
-                Toast.makeText(this, R.string.no_internet_access, Toast.LENGTH_SHORT).show();
-                return false;
-            } else {
-                return true;
-            }
-
-        } catch (Exception e) {
-            Toast.makeText(this, R.string.no_internet_access, Toast.LENGTH_SHORT).show();
-            return false;
-        }
+        return true;
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        Log.d(TAG, "Premisson Result");
 
-        if (requestCode == PERMISSIONS_REQUEST_EXTERNAL_STORAGE) {
+        if (requestCode == PERMISSIONS_REQUEST_INTERNET) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-//                presenter.onPermitionGranted();
+                presenter.onPermitionGranted();
             } else {
 
+                Toast.makeText(this, "Internet premision denied", Toast.LENGTH_SHORT).show();
                 // permission denied, boo! Disable the
                 // functionality that depends on this permission.
             }

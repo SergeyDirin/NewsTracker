@@ -49,9 +49,7 @@ public class MainPresenter {
     }
 
     public void onStart(){
-        if (!screen.isPermitionGranted()){
-            screen.askPermition();
-        }
+        screen.askPermition();
     }
 
     public void onResume(){
