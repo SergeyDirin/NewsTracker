@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NewsTracker</string>
+    <string name="news_item_image_description">картинка элемента новостей</string>
+    <string name="unavailable_network">недоступная сеть</string>
+    <string name="no_internet_access">нет доступа в интернет</string>
+    <string name="wifi_not_available">wifi недоступен</string>
+    <string name="by">от</string>
+</resources>
