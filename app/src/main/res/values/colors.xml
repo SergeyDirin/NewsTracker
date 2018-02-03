@@ -5,4 +5,10 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorPlaceholder">#b0b0b0</color>
     <color name="firstLetter">#DD0000</color>
+    <color name="primary_material_dark">#1b1b1b</color>
+    <color name="primary_dark_material_dark">#000000</color>
+    <color name="accent_material_dark">#9c97da</color>
+    <color name="primary_dark_energy">#000114</color>
+    <color name="foreground_dark_energy">#c4c8f8</color>
+    <color name="textSecondary_dark_energy">#cccdfc</color>
 </resources>
