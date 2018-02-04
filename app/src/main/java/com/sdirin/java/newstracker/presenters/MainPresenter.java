@@ -45,6 +45,7 @@ public class MainPresenter {
         newsResponse.setMessage("ok");
 //        screen.logD("loaded DB");
         newsResponse.setArticles(db.getAllArticles());
+        newsResponse.orderByDate();
         screen.setNewsResponse(newsResponse);
     }
 
@@ -88,6 +89,7 @@ public class MainPresenter {
                     } else {
                         newsResponse.combineWith(newsResponseNetwork );
                     }
+                    newsResponse.orderByDate();
                     safeToDb(newsResponse);
                     screen.setNewsResponse(newsResponse);
                     screen.displayList();

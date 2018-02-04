@@ -1,6 +1,7 @@
 package com.sdirin.java.newstracker.data.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -56,6 +57,10 @@ public class NewsResponse {
         this.status = status;
         this.code = code;
         this.message = message;
+    }
+
+    public void orderByDate(){
+        Collections.sort(articles);
     }
 
     public String getStatus() {

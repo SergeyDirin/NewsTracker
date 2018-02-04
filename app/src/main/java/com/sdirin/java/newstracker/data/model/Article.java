@@ -1,5 +1,7 @@
 package com.sdirin.java.newstracker.data.model;
 
+import android.support.annotation.NonNull;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -10,7 +12,7 @@ import java.util.TimeZone;
  * Created by SDirin on 01-Jan-18.
  */
 
-public class Article {
+public class Article implements Comparable<Article> {
 
     //    articles": [
 //            -{
@@ -142,5 +144,10 @@ public class Article {
             sdf.setTimeZone(TimeZone.getTimeZone("UTC (+000)"));
         }
         this.publishedAt = sdf.parse(prepare);
+    }
+
+    @Override
+    public int compareTo(@NonNull Article o) {
+        return o.getPublishedAt().compareTo(getPublishedAt());
     }
 }
