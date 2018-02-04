@@ -42,14 +42,13 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
     public static int TYPE_WIFI = 1;
     public static int TYPE_MOBILE = 2;
     public static int TYPE_NOT_CONNECTED = 0;
-    private NavigationView mDrawerList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mDrawerList = (NavigationView) findViewById(R.id.navigation);
+        final NavigationView mDrawerList = (NavigationView) findViewById(R.id.navigation);
         mDrawerList.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {

@@ -2,7 +2,11 @@ package com.sdirin.java.newstracker.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.webkit.WebView;
 import android.widget.Toast;
 
@@ -13,7 +17,16 @@ public class DetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detail_content);
+        setContentView(R.layout.activity_detail);
+
+        final NavigationView mDrawerList = (NavigationView) findViewById(R.id.navigation);
+        mDrawerList.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                ((DrawerLayout) findViewById(R.id.drawer_layout)).closeDrawer(mDrawerList);
+                return onOptionsItemSelected(item);
+            }
+        });
 
         WebView webView = (WebView) findViewById(R.id.webView);
 
@@ -24,6 +37,20 @@ public class DetailActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "No URL", Toast.LENGTH_SHORT).show();
             finish();
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.home_menu:
+                Toast.makeText(this, "Home pressed", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.settings_menu:
+                Toast.makeText(this, "Settings pressed", Toast.LENGTH_SHORT).show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }
