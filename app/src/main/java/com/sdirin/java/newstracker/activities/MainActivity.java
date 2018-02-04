@@ -53,7 +53,16 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 ((DrawerLayout) findViewById(R.id.drawer_layout)).closeDrawer(mDrawerList);
-                return onOptionsItemSelected(item);
+                switch (item.getItemId()) {
+                    case R.id.home_menu:
+                        Toast.makeText(MainActivity.this, "Home pressed", Toast.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.settings_menu:
+                        Toast.makeText(MainActivity.this, "Settings pressed", Toast.LENGTH_SHORT).show();
+                        return true;
+                    default:
+                        return false;
+                }
             }
         });
 
@@ -74,18 +83,15 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.drawer_navigation_items, menu);
+        inflater.inflate(R.menu.action_menu, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.home_menu:
-                Toast.makeText(this, "Home pressed", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.settings_menu:
-                Toast.makeText(this, "Settings pressed", Toast.LENGTH_SHORT).show();
+            case R.id.openMenu:
+                ((DrawerLayout) findViewById(R.id.drawer_layout)).openDrawer(findViewById(R.id.navigation));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
