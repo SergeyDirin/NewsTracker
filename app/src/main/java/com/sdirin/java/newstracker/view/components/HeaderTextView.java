@@ -40,6 +40,7 @@ public class HeaderTextView extends TextView {
     @Override
     public void setText(CharSequence text, BufferType type) {
         if (text != null && text.length()>0) {
+            setContentDescription(text);
             firstLetter = text.charAt(0);
             StringBuilder sb = new StringBuilder(firstLetter);
             for(int i = 0;i<getLetterWidth(firstLetter);i++){
