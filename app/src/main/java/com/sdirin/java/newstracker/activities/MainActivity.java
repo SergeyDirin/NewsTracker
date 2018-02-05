@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.test.espresso.idling.CountingIdlingResource;
@@ -34,14 +35,19 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
 
     private static final String TAG = "NewsApp";
     private static final int PERMISSIONS_REQUEST_INTERNET = 1;
+    private static final String SCROLL_STATE = "savedScrol";
     NewsResponse newsResponse;
     MainPresenter presenter;
 
     MainAdapter adapter;
 
+    RecyclerView.LayoutManager layoutManager;
+
     public static int TYPE_WIFI = 1;
     public static int TYPE_MOBILE = 2;
     public static int TYPE_NOT_CONNECTED = 0;
+
+    Parcelable state;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +105,12 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        state = layoutManager.onSaveInstanceState();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
 
@@ -131,10 +143,11 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
         RecyclerView list = findViewById(R.id.news_list);
         if (adapter == null){
             adapter = new MainAdapter(newsResponse);
-            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+            layoutManager = new LinearLayoutManager(this);
             list.setLayoutManager(layoutManager);
             list.setItemAnimator(new DefaultItemAnimator());
             list.setAdapter(adapter);
+            layoutManager.onRestoreInstanceState(state);
         } else {
             list.invalidate();
         }
@@ -219,5 +232,19 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
 
     public void setCountingIdlingResource(CountingIdlingResource countingIdlingResource) {
         presenter.setCountingIdlingResource(countingIdlingResource);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(SCROLL_STATE,state);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState != null && savedInstanceState.containsKey(SCROLL_STATE)){
+            state = savedInstanceState.getParcelable(SCROLL_STATE);
+        }
     }
 }
