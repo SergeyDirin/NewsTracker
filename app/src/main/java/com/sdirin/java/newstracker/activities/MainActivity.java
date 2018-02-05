@@ -30,6 +30,7 @@ import com.sdirin.java.newstracker.data.model.NewsResponse;
 import com.sdirin.java.newstracker.database.DatabaseHandler;
 import com.sdirin.java.newstracker.presenters.MainPresenter;
 import com.sdirin.java.newstracker.view.MainScreen;
+import com.sdirin.java.newstracker.view.components.NavigationDrawer;
 
 public class MainActivity extends AppCompatActivity implements MainScreen {
 
@@ -43,6 +44,8 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
 
     RecyclerView.LayoutManager layoutManager;
 
+    NavigationDrawer navigationDrawer;
+
     public static int TYPE_WIFI = 1;
     public static int TYPE_MOBILE = 2;
     public static int TYPE_NOT_CONNECTED = 0;
@@ -54,23 +57,11 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final NavigationView mDrawerList = (NavigationView) findViewById(R.id.navigation);
-        mDrawerList.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                ((DrawerLayout) findViewById(R.id.drawer_layout)).closeDrawer(mDrawerList);
-                switch (item.getItemId()) {
-                    case R.id.home_menu:
-                        Toast.makeText(MainActivity.this, "Home pressed", Toast.LENGTH_SHORT).show();
-                        return true;
-                    case R.id.settings_menu:
-                        Toast.makeText(MainActivity.this, "Settings pressed", Toast.LENGTH_SHORT).show();
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-        });
+        navigationDrawer = new NavigationDrawer(
+                (NavigationView) findViewById(R.id.navigation),
+                (DrawerLayout) findViewById(R.id.drawer_layout),
+                this
+        );
 
         presenter = new MainPresenter(this);
 
@@ -97,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.openMenu:
-                ((DrawerLayout) findViewById(R.id.drawer_layout)).openDrawer(findViewById(R.id.navigation));
+                navigationDrawer.opeDrawer();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
