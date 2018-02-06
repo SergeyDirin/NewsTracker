@@ -7,6 +7,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
@@ -17,20 +18,27 @@ import com.sdirin.java.newstracker.R;
  */
 
 public class HeaderTextView extends TextView {
+
+    private final Context context;
+
     public HeaderTextView(Context context) {
         super(context);
+        this.context = context;
     }
 
     public HeaderTextView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        this.context = context;
     }
 
     public HeaderTextView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        this.context = context;
     }
 
     public HeaderTextView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        this.context = context;
     }
 
     char firstLetter;
@@ -62,7 +70,7 @@ public class HeaderTextView extends TextView {
 
     private void drawFirstLetter(Canvas canvas) {
         Paint paint = getFirstLetterPaint();
-        paint.setColor(getContext().getColor(R.color.firstLetter));
+        paint.setColor(ContextCompat.getColor(context, R.color.firstLetter));
         canvas.drawText( Character.toString(firstLetter),0f,58f, paint);
     }
 
