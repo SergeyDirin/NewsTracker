@@ -43,10 +43,11 @@ public class HeaderTextView extends TextView {
             setContentDescription(text);
             firstLetter = text.charAt(0);
             StringBuilder sb = new StringBuilder(firstLetter);
-            for(int i = 0;i<getLetterWidth(firstLetter);i++){
+            int spacesCount = getLetterWidth(firstLetter);
+            for(int i = 0;i<spacesCount;i++){
                 sb.append(" ");
             }
-            text = sb.append(text.subSequence(1,text.length()-1)).toString();
+            text = sb.append(text.subSequence(1,text.length())).toString();
         }
         super.setText(text, type);
     }
@@ -93,18 +94,6 @@ public class HeaderTextView extends TextView {
         } else {
             return 5;
         }
-    }
-
-    @Override
-    public void getDrawingRect(Rect outRect) {
-        if (firstLetter!=0){
-            Paint paint = getFirstLetterPaint();
-            Rect bounds = new Rect();
-            paint.getTextBounds(Character.toString(firstLetter),0,1,bounds);
-            outRect.left = outRect.left+bounds.right;
-        }
-
-        super.getDrawingRect(outRect);
     }
 
 
