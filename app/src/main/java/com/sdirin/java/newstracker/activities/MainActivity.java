@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
 
     MainAdapter adapter;
 
+    RecyclerView mRecycleView;
     RecyclerView.LayoutManager layoutManager;
 
     NavigationDrawer navigationDrawer;
@@ -131,16 +132,16 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
         if (newsResponse == null) {
             return;
         }
-        RecyclerView list = findViewById(R.id.news_list);
+        mRecycleView = findViewById(R.id.news_list);
         if (adapter == null){
-            adapter = new MainAdapter(newsResponse);
+            adapter = new MainAdapter(newsResponse, presenter);
             layoutManager = new LinearLayoutManager(this);
-            list.setLayoutManager(layoutManager);
-            list.setItemAnimator(new DefaultItemAnimator());
-            list.setAdapter(adapter);
+            mRecycleView.setLayoutManager(layoutManager);
+            mRecycleView.setItemAnimator(new DefaultItemAnimator());
+            mRecycleView.setAdapter(adapter);
             layoutManager.onRestoreInstanceState(state);
         } else {
-            list.invalidate();
+            adapter.notifyDataSetChanged();
         }
 
     }

@@ -133,6 +133,12 @@ public class Article implements Comparable<Article> {
         return sdf.format(publishedAt);
     }
 
+    public String getPublishedAtFullString() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        sdf.setTimeZone(TimeZone.getDefault());
+        return sdf.format(publishedAt);
+    }
+
     public void setPublishedAtString(String publishedAt) throws ParseException {
         String prepare = publishedAt.replace('T',' ').replace("Z","");//"2009-10-10T12:12:12Z";
         SimpleDateFormat sdf;
@@ -144,6 +150,10 @@ public class Article implements Comparable<Article> {
             sdf.setTimeZone(TimeZone.getTimeZone("UTC (+000)"));
         }
         this.publishedAt = sdf.parse(prepare);
+    }
+
+    public String getID(){
+        return title;
     }
 
     @Override

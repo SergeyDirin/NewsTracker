@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.test.espresso.idling.CountingIdlingResource;
 
 import com.sdirin.java.newstracker.data.ServiceProvider;
+import com.sdirin.java.newstracker.data.model.Article;
 import com.sdirin.java.newstracker.data.model.NewsResponse;
 import com.sdirin.java.newstracker.data.network.NewsService;
 import com.sdirin.java.newstracker.data.parse.NewsServiceParser;
@@ -84,15 +85,8 @@ public class MainPresenter {
                         screen.logD("Error loading news");
                         return;
                     }
-                    if (newsResponse == null){
-                        newsResponse = newsResponseNetwork;
-                    } else {
-                        newsResponse.combineWith(newsResponseNetwork );
-                    }
-                    newsResponse.orderByDate();
                     safeToDb(newsResponse);
-                    screen.setNewsResponse(newsResponse);
-                    screen.displayList();
+                    loadFromDB();
                 } else {
                     int statusCode = response.code();
                     //screen.logD("onResponse: status code = "+statusCode);
@@ -135,5 +129,9 @@ public class MainPresenter {
 
             idlingResource.decrement();
         }
+    }
+
+    public void removeArticle(Article article) {
+        db.deleteArticle(article);
     }
 }

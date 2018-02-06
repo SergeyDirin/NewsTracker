@@ -116,5 +116,22 @@ public class NewsResponse {
         }
 
         articles.addAll(articleToAdd);
+        orderByDate();
+    }
+
+    public int getPosition(Article article){
+        for (int i = 0; i < articles.size(); i++) {
+            if (articles.get(i).getTitle().equals(article.getTitle())){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public void remove(Article article){
+        int position = getPosition(article);
+        if (position >= 0 && position < articles.size()){
+            articles.remove(position);
+        }
     }
 }

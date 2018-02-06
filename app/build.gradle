@@ -44,4 +44,5 @@ dependencies {
     androidTestImplementation "org.mockito:mockito-android:2.13.0"
     testImplementation "org.mockito:mockito-core:2.13.0"
     testImplementation "org.mockito:mockito-android:2.13.0"
+    implementation 'com.idescout.sql:sqlscout-server:4.0'
 }
