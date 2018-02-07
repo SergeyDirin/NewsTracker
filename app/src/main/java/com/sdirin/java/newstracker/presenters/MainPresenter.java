@@ -3,6 +3,7 @@ package com.sdirin.java.newstracker.presenters;
 import android.support.annotation.NonNull;
 import android.support.test.espresso.idling.CountingIdlingResource;
 
+import com.sdirin.java.newstracker.data.SelectedSources;
 import com.sdirin.java.newstracker.data.ServiceProvider;
 import com.sdirin.java.newstracker.data.model.Article;
 import com.sdirin.java.newstracker.data.model.NewsResponse;
@@ -69,7 +70,12 @@ public class MainPresenter {
 //        }
 //        isLoadedWithPermition = true;
         incrementIdlingResouce();
-        mService.getNews().enqueue(new Callback<String>() {
+        SelectedSources selected = screen.getSelectedSources();
+        String sources = selected.getSelectedSources();
+        if (sources.length() == 0){
+            sources = "polygon";
+        }
+        mService.getNews(sources).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 if (response.isSuccessful()){
@@ -82,12 +88,13 @@ public class MainPresenter {
                         screen.logD("Error loading news");
                         return;
                     }
-//                    screen.logD("onResponse: news count = "+newsResponseNetwork.getArticles().size());
-                    safeToDb(newsResponseNetwork);
+                    screen.logD("onResponse: news count = "+newsResponseNetwork.getArticles().size());
+                    newsResponse.combineWith(newsResponseNetwork);
+                    safeToDb(newsResponse);
                     loadFromDB();
                 } else {
                     int statusCode = response.code();
-                    //screen.logD("onResponse: status code = "+statusCode);
+                    screen.logD("onResponse: status code = "+statusCode);
                 }
                 decrementIdlingResource();
             }

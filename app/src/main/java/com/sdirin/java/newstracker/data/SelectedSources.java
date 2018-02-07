@@ -74,7 +74,7 @@ public class SelectedSources {
         prefs.edit().putString(PREF_SELECTED_SOURCES, s).apply();
     }
 
-    String getSelectedSources(){
+    public String getSelectedSources(){
         return prefs.getString(PREF_SELECTED_SOURCES, "");
     }
 

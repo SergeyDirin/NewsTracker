@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.sdirin.java.newstracker.R;
 import com.sdirin.java.newstracker.adapters.MainAdapter;
+import com.sdirin.java.newstracker.data.SelectedSources;
 import com.sdirin.java.newstracker.data.model.NewsResponse;
 import com.sdirin.java.newstracker.database.DatabaseHandler;
 import com.sdirin.java.newstracker.presenters.MainPresenter;
@@ -78,6 +79,11 @@ public class MainActivity extends BasicActivity implements MainScreen {
     }
 
     @Override
+    public SelectedSources getSelectedSources() {
+        return new SelectedSources(this);
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
 //        presenter.onStart();
@@ -92,7 +98,6 @@ public class MainActivity extends BasicActivity implements MainScreen {
         if (this.newsResponse == null){
             this.newsResponse = new NewsResponse();
         }
-        this.newsResponse.combineWith(newsResponse);
         if (adapter != null){
             adapter.notifyDataSetChanged();
         }

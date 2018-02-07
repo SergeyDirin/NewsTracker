@@ -1,5 +1,6 @@
 package com.sdirin.java.newstracker.view;
 
+import com.sdirin.java.newstracker.data.SelectedSources;
 import com.sdirin.java.newstracker.database.DatabaseHandler;
 
 /**
@@ -9,6 +10,8 @@ import com.sdirin.java.newstracker.database.DatabaseHandler;
 public interface BasicScreen {
 
     DatabaseHandler getDb();
+
+    SelectedSources getSelectedSources();
 
     void showErrorMessage();
 

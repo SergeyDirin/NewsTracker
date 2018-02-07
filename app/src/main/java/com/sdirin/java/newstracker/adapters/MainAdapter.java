@@ -11,12 +11,14 @@ import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sdirin.java.newstracker.R;
 import com.sdirin.java.newstracker.activities.DetailActivity;
@@ -127,6 +129,11 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
         article.setRead(true);
         presenter.setArticleRead(article);
         Intent intent = new Intent(context, DetailActivity.class);
+        if (article == null || article.getUrl() == null) {
+            Toast.makeText(context, "No link", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Log.d("NewsApp",article.getUrl());
         intent.putExtra("EXTRA_URL", article.getUrl());
         context.startActivity(intent);
     }

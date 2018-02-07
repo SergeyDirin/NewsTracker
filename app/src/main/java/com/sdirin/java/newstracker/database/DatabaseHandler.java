@@ -51,6 +51,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      *
      */
     public static final String KEY_NAME = "name";
+    public static final String KEY_URL_SOURCE = "url_source";
+    public static final String KEY_DESCRIPTION_SOURCE = "description_source";
     public static final String KEY_CATEGORY = "category";
     public static final String KEY_LANGUAGE = "language";
     public static final String KEY_COUNTRY = "country";
@@ -78,8 +80,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 KEY_ID +" INTEGER PRIMARY KEY, " +
                 KEY_SOURCE_ID +" TEXT, " +
                 KEY_NAME + " TEXT, " +
-                KEY_DESCRIPTION + " TEXT, " +
-                KEY_URL + " TEXT, " +
+                KEY_DESCRIPTION_SOURCE + " TEXT, " +
+                KEY_URL_SOURCE + " TEXT, " +
                 KEY_CATEGORY + " TEXT, " +
                 KEY_LANGUAGE + " TEXT, " +
                 KEY_COUNTRY + " TEXT" +")";
@@ -109,8 +111,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(KEY_SOURCE_ID, source.getId());
         values.put(KEY_NAME, source.getName());
-        values.put(KEY_DESCRIPTION, source.getDescription());
-        values.put(KEY_URL, source.getUrl());
+        values.put(KEY_DESCRIPTION_SOURCE, source.getDescription());
+        values.put(KEY_URL_SOURCE, source.getUrl());
         values.put(KEY_CATEGORY, source.getCategory());
         values.put(KEY_LANGUAGE, source.getLanguage());
         values.put(KEY_COUNTRY, source.getCountry());
@@ -127,8 +129,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                         KEY_ID,
                         KEY_SOURCE_ID,
                         KEY_NAME,
-                        KEY_DESCRIPTION,
-                        KEY_URL,
+                        KEY_DESCRIPTION_SOURCE,
+                        KEY_URL_SOURCE,
                         KEY_CATEGORY,
                         KEY_LANGUAGE,
                         KEY_COUNTRY},
@@ -196,8 +198,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
         values.put(KEY_NAME,source.getName());
-        values.put(KEY_DESCRIPTION,source.getDescription());
-        values.put(KEY_URL,source.getUrl());
+        values.put(KEY_DESCRIPTION_SOURCE,source.getDescription());
+        values.put(KEY_URL_SOURCE,source.getUrl());
         values.put(KEY_CATEGORY,source.getCategory());
         values.put(KEY_LANGUAGE,source.getLanguage());
         values.put(KEY_COUNTRY,source.getCountry());
@@ -224,6 +226,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
         Article oldArticle = getArticleByTitle(article.getTitle());
         if (oldArticle != null){
+            article.setRead(oldArticle.isRead());
+            updateArticle(article);
             return;
         }
 
