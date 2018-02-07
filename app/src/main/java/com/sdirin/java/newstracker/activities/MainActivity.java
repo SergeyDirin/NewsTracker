@@ -9,19 +9,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
 import android.support.test.espresso.idling.CountingIdlingResource;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.sdirin.java.newstracker.R;
@@ -30,9 +24,8 @@ import com.sdirin.java.newstracker.data.model.NewsResponse;
 import com.sdirin.java.newstracker.database.DatabaseHandler;
 import com.sdirin.java.newstracker.presenters.MainPresenter;
 import com.sdirin.java.newstracker.view.MainScreen;
-import com.sdirin.java.newstracker.view.components.NavigationDrawer;
 
-public class MainActivity extends AppCompatActivity implements MainScreen {
+public class MainActivity extends BasicActivity implements MainScreen {
 
     private static final String TAG = "NewsApp";
     private static final int PERMISSIONS_REQUEST_INTERNET = 1;
@@ -45,8 +38,6 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
     RecyclerView mRecycleView;
     RecyclerView.LayoutManager layoutManager;
 
-    NavigationDrawer navigationDrawer;
-
     public static int TYPE_WIFI = 1;
     public static int TYPE_MOBILE = 2;
     public static int TYPE_NOT_CONNECTED = 0;
@@ -58,12 +49,6 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        navigationDrawer = new NavigationDrawer(
-                (NavigationView) findViewById(R.id.navigation),
-                (DrawerLayout) findViewById(R.id.drawer_layout),
-                this
-        );
-
         presenter = new MainPresenter(this);
 
         ConnectivityManager cm = (ConnectivityManager)
@@ -72,27 +57,9 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
             cm.addDefaultNetworkActiveListener(new ConnectivityManager.OnNetworkActiveListener() {
                 @Override
                 public void onNetworkActive() {
-
+                    presenter.loadFromNetwork();
                 }
             });
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.action_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.openMenu:
-                navigationDrawer.opeDrawer();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -137,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
         }
         mRecycleView = findViewById(R.id.news_list);
         if (adapter == null){
-            adapter = new MainAdapter(newsResponse, presenter);
+            adapter = new MainAdapter(presenter);
             layoutManager = new LinearLayoutManager(this);
             mRecycleView.setLayoutManager(layoutManager);
             mRecycleView.setItemAnimator(new DefaultItemAnimator());
@@ -147,10 +114,6 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
             adapter.notifyDataSetChanged();
         }
 
-    }
-
-    public void logD(String message){
-        Log.d(TAG,message);
     }
 
     @Override
@@ -187,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
 
         if (requestCode == PERMISSIONS_REQUEST_INTERNET) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                presenter.onPermitionGranted();
+                presenter.loadFromNetwork();
             } else {
 
                 Toast.makeText(this, "Internet premision denied", Toast.LENGTH_SHORT).show();
@@ -223,6 +186,10 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
 
     public void showErrorMessage() {
         Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
+    }
+
+    public void logD(String message){
+        Log.d(TAG,message);
     }
 
     public void setCountingIdlingResource(CountingIdlingResource countingIdlingResource) {

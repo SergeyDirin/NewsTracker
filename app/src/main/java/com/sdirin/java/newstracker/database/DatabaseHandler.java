@@ -51,6 +51,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      *
      */
     public static final String KEY_NAME = "name";
+    public static final String KEY_CATEGORY = "category";
+    public static final String KEY_LANGUAGE = "language";
+    public static final String KEY_COUNTRY = "country";
 
 
     public DatabaseHandler(Context context) {
@@ -74,7 +77,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String create_sources_table = "CREATE TABLE " + TABLE_SOURCES + "(" +
                 KEY_ID +" INTEGER PRIMARY KEY, " +
                 KEY_SOURCE_ID +" TEXT, " +
-                KEY_NAME + " TEXT" +")";
+                KEY_NAME + " TEXT, " +
+                KEY_DESCRIPTION + " TEXT, " +
+                KEY_URL + " TEXT, " +
+                KEY_CATEGORY + " TEXT, " +
+                KEY_LANGUAGE + " TEXT, " +
+                KEY_COUNTRY + " TEXT" +")";
         db.execSQL(create_sources_table);
     }
 
@@ -90,11 +98,22 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      */
 
     public void addSource(Source source){
+
+        if (getSource(source.getId()) != null){
+            updateSource(source);
+            return;
+        }
+
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(KEY_SOURCE_ID, source.getId());
         values.put(KEY_NAME, source.getName());
+        values.put(KEY_DESCRIPTION, source.getDescription());
+        values.put(KEY_URL, source.getUrl());
+        values.put(KEY_CATEGORY, source.getCategory());
+        values.put(KEY_LANGUAGE, source.getLanguage());
+        values.put(KEY_COUNTRY, source.getCountry());
 
         db.insert(TABLE_SOURCES, null, values);
         db.close();
@@ -104,7 +123,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_SOURCES,
-                new String[]{KEY_ID,KEY_SOURCE_ID,KEY_NAME},
+                new String[]{
+                        KEY_ID,
+                        KEY_SOURCE_ID,
+                        KEY_NAME,
+                        KEY_DESCRIPTION,
+                        KEY_URL,
+                        KEY_CATEGORY,
+                        KEY_LANGUAGE,
+                        KEY_COUNTRY},
                 KEY_SOURCE_ID + "=?",
                 new String[]{source_id},null,null,null);
         if (cursor == null) {
@@ -115,8 +142,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             cursor.close();
             return null;
         }
-        Source source = new Source(cursor.getString(1),
-                cursor.getString(2));
+        Source source = new Source(
+                cursor.getString(1),
+                cursor.getString(2),
+                cursor.getString(3),
+                cursor.getString(4),
+                cursor.getString(5),
+                cursor.getString(6),
+                cursor.getString(7));
         cursor.close();
         return source;
     }
@@ -133,7 +166,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()){
             do {
-                Source source = new Source(cursor.getString(1),cursor.getString(2));
+                Source source = new Source(
+                        cursor.getString(1),
+                        cursor.getString(2),
+                        cursor.getString(3),
+                        cursor.getString(4),
+                        cursor.getString(5),
+                        cursor.getString(6),
+                        cursor.getString(7));
                 sourceList.add(source);
             } while (cursor.moveToNext());
         }
@@ -156,6 +196,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
         values.put(KEY_NAME,source.getName());
+        values.put(KEY_DESCRIPTION,source.getDescription());
+        values.put(KEY_URL,source.getUrl());
+        values.put(KEY_CATEGORY,source.getCategory());
+        values.put(KEY_LANGUAGE,source.getLanguage());
+        values.put(KEY_COUNTRY,source.getCountry());
 
         return db.update(TABLE_SOURCES, values, KEY_SOURCE_ID + " = ?",
                 new String[]{source.getId()});
@@ -294,7 +339,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         List<Article> articleList = new ArrayList<>();
 
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT a.*,s.name FROM "+
+        Cursor cursor = db.rawQuery("SELECT a.*,s.* FROM "+
                 TABLE_ARTICLES+" a, " + TABLE_SOURCES +
                 " s WHERE a."+KEY_SOURCE_ID+"=s."+KEY_SOURCE_ID+" AND a."+KEY_IS_DELETED+"=0",
                 null);
@@ -305,7 +350,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()){
             do {
-                Source source = new Source(cursor.getString(cursor.getColumnIndex(KEY_SOURCE_ID)),cursor.getString(cursor.getColumnIndex(KEY_NAME)));
+                Source source = new Source(
+                        cursor.getString(cursor.getColumnIndex(KEY_SOURCE_ID)),
+                        cursor.getString(cursor.getColumnIndex(KEY_NAME)),
+                        cursor.getString(cursor.getColumnIndex(KEY_DESCRIPTION)),
+                        cursor.getString(cursor.getColumnIndex(KEY_URL)),
+                        cursor.getString(cursor.getColumnIndex(KEY_CATEGORY)),
+                        cursor.getString(cursor.getColumnIndex(KEY_LANGUAGE)),
+                        cursor.getString(cursor.getColumnIndex(KEY_COUNTRY)));
                 if (cursor.getInt(cursor.getColumnIndex(KEY_IS_DELETED)) == 0) {
                     Article article = new Article(Integer.parseInt(cursor.getString(cursor.getColumnIndex(KEY_ID))),
                             source,

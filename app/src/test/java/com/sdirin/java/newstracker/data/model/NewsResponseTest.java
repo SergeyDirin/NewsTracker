@@ -1,6 +1,6 @@
 package com.sdirin.java.newstracker.data.model;
 
-import com.sdirin.java.newstracker.data.parse.NewsParser;
+import com.sdirin.java.newstracker.data.model.parse.NewsParser;
 
 import junit.framework.Assert;
 

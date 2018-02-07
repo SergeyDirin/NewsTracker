@@ -4,12 +4,11 @@ import android.support.annotation.NonNull;
 import android.support.test.espresso.idling.CountingIdlingResource;
 
 import com.sdirin.java.newstracker.data.ServiceProvider;
-import com.sdirin.java.newstracker.data.model.Article;
-import com.sdirin.java.newstracker.data.model.NewsResponse;
-import com.sdirin.java.newstracker.data.model.parse.NewsParser;
+import com.sdirin.java.newstracker.data.model.SourcesResponse;
+import com.sdirin.java.newstracker.data.model.parse.SourcesParser;
 import com.sdirin.java.newstracker.data.network.NewsService;
 import com.sdirin.java.newstracker.database.DatabaseHandler;
-import com.sdirin.java.newstracker.view.MainScreen;
+import com.sdirin.java.newstracker.view.SourcesScreen;
 
 import java.text.ParseException;
 
@@ -17,24 +16,23 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-
 /**
- * Created by SDirin on 06-Jan-18.
+ * Created by User on 07.02.2018.
  */
 
-public class MainPresenter {
+public class SourcesPresenter {
 
-    public NewsResponse newsResponse;
+    SourcesScreen screen;
     private NewsService mService;
-    private DatabaseHandler db;
 
-    private MainScreen screen;
+    public SourcesResponse sourcesResponse;
+    private DatabaseHandler db;
 
     //testing network support
     private CountingIdlingResource idlingResource;
     private int incrementCalls = 0;
 
-    public MainPresenter(MainScreen screen){
+    public SourcesPresenter(SourcesScreen screen) {
         mService = new ServiceProvider().getService();
         this.screen = screen;
         this.db = screen.getDb();
@@ -46,44 +44,40 @@ public class MainPresenter {
     }
 
     private void loadFromDB() {
-        newsResponse = new NewsResponse();
-        newsResponse.setMessage("ok");
+        sourcesResponse = new SourcesResponse();
+        sourcesResponse.setMessage("ok");
 //        screen.logD("loaded DB");
-        newsResponse.setArticles(db.getAllArticles());
-        screen.logD("loadFromDB: news count = "+newsResponse.getArticles().size());
-        newsResponse.orderByDate();
-        screen.setNewsResponse(newsResponse);
+        sourcesResponse.setSources(db.getAllSources());
+        screen.logD("loadFromDB: sources count = "+sourcesResponse.getSources().size());
+        screen.setSourcesResponse(sourcesResponse);
     }
 
-    public void onStart(){
-        screen.askPermition();
-    }
-
-    public void loadFromNetwork(){
-        if (!screen.isInternetAvailable()){
+    private void loadFromNetwork() {
+        if (!screen.isInternetAvailable()) {
             return;
         }
-        screen.logD("loadFromNetwork");
+        screen.logD("Sources loadFromNetwork");
 //        if (isLoadedWithPermition){
 //            return;
 //        }
 //        isLoadedWithPermition = true;
         incrementIdlingResouce();
-        mService.getNews().enqueue(new Callback<String>() {
+        mService.getSources().enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                if (response.isSuccessful()){
+                if (response.isSuccessful()) {
                     //screen.logD("loaded network");
-                    NewsResponse newsResponseNetwork;
+                    SourcesResponse sourcesResponseNetwork;
                     try {
-                        newsResponseNetwork = NewsParser.fromJson(response.body());
+                        sourcesResponseNetwork = SourcesParser.fromJson(response.body());
                     } catch (ParseException e) {
                         e.printStackTrace();
                         screen.logD("Error loading news");
                         return;
                     }
-//                    screen.logD("onResponse: news count = "+newsResponseNetwork.getArticles().size());
-                    safeToDb(newsResponseNetwork);
+                    screen.logD("Sources onResponse: sources count = "+sourcesResponseNetwork.getSources().size());
+                    sourcesResponse.combineWith(sourcesResponseNetwork);
+                    safeToDb(sourcesResponse);
                     loadFromDB();
                 } else {
                     int statusCode = response.code();
@@ -101,17 +95,12 @@ public class MainPresenter {
         });
     }
 
-    private void safeToDb(NewsResponse response) {
-//        screen.logD("safeToDb: news count = "+response.getArticles().size());
-        for (int i=0; i<response.getArticles().size(); i++){
-            db.addArticle(response.getArticles().get(i));
+    private void safeToDb(SourcesResponse sourcesResponseNetwork) {
+        for (int i=0; i<sourcesResponseNetwork.getSources().size(); i++){
+            db.addSource(sourcesResponseNetwork.getSources().get(i));
         }
     }
 
-    //testing network support
-    public void setCountingIdlingResource(CountingIdlingResource countingIdlingResource) {
-        this.idlingResource = countingIdlingResource;
-    }
     private void incrementIdlingResouce(){
         if (idlingResource != null){
             idlingResource.increment();
@@ -128,13 +117,5 @@ public class MainPresenter {
 
             idlingResource.decrement();
         }
-    }
-
-    public void removeArticle(Article article) {
-        db.deleteArticle(article);
-    }
-
-    public void setArticleRead(Article article) {
-        db.setArticleRead(article);
     }
 }

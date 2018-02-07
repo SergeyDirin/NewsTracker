@@ -1,4 +1,4 @@
-package com.sdirin.java.newstracker.data.parse;
+package com.sdirin.java.newstracker.data.model.parse;
 
 import com.sdirin.java.newstracker.data.model.NewsResponse;
 import com.sdirin.java.newstracker.data.network.mock.Requests;

@@ -105,12 +105,13 @@ public class NewsResponse {
         List<Article> articleToAdd = new ArrayList<>();
         for (Article newArticle : newsResponse.getArticles()) {
             boolean found = false;
-            for (Article article: articles)
-            if (article.getTitle().equals(newArticle.getTitle())){
-                found = true;
-                break;
+            for (Article article: articles) {
+                if (article.getTitle().equals(newArticle.getTitle())) {
+                    found = true;
+                    break;
+                }
             }
-            if (! found){
+            if (!found) {
                 articleToAdd.add(newArticle);
             }
         }

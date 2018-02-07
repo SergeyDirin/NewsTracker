@@ -1,4 +1,4 @@
-package com.sdirin.java.newstracker.data.parse;
+package com.sdirin.java.newstracker.data.model.parse;
 
 import com.sdirin.java.newstracker.data.model.Article;
 import com.sdirin.java.newstracker.data.model.NewsResponse;
@@ -51,7 +51,9 @@ public class NewsParser {
                     JSONObject jsonSource = jsonArticle.getJSONObject("source");
                     String sourceId = jsonSource.isNull("id") ? "Unknown" : jsonSource.getString("id");
                     String sourceName = jsonSource.isNull("name") ? "Unknown" : jsonSource.getString("name");
-                    Source source = new Source(sourceId, sourceName);
+                    Source source = new Source();
+                    source.setId(sourceId);
+                    source.setName(sourceName);
                     articleObj.setSource(source);
                     articlesList.add(articleObj);
                 }

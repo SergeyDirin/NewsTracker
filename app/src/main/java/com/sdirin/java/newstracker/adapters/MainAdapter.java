@@ -21,7 +21,6 @@ import android.widget.TextView;
 import com.sdirin.java.newstracker.R;
 import com.sdirin.java.newstracker.activities.DetailActivity;
 import com.sdirin.java.newstracker.data.model.Article;
-import com.sdirin.java.newstracker.data.model.NewsResponse;
 import com.sdirin.java.newstracker.presenters.MainPresenter;
 import com.squareup.picasso.Picasso;
 
@@ -38,7 +37,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
     private static final int PENDING_REMOVAL_TIMEOUT = 3000; // 3sec
 
     List<String> itemsPendingRemoval;
-    private NewsResponse response;
     private MainPresenter presenter;
     private Context context;
     private int width;
@@ -49,8 +47,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
     private Handler handler = new Handler(); // hanlder for running delayed runnables
     HashMap<String, Runnable> pendingRunnables = new HashMap<>(); // map of items to pending runnables, so we can cancel a removal if need be
 
-    public MainAdapter(NewsResponse response, MainPresenter presenter){
-        this.response = response;
+    public MainAdapter(MainPresenter presenter){
         this.presenter = presenter;
         itemsPendingRemoval = new ArrayList<>();
     }
@@ -66,7 +63,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
 
     @Override
     public void onBindViewHolder(MainViewHolder holder, int position) {
-        final Article article = response.getArticles().get(position);
+        final Article article = presenter.newsResponse.getArticles().get(position);
 
         if (itemsPendingRemoval.contains(article.getID())) {
             holder.itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.primary_material_dark));
@@ -80,7 +77,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
                     if (pendingRemovalRunnable != null) handler.removeCallbacks(pendingRemovalRunnable);
                     itemsPendingRemoval.remove(itemsPendingRemoval.indexOf(article.getID()));
                     // this will rebind the row in "normal" state
-                    notifyItemChanged(response.getPosition(article));
+                    notifyItemChanged(presenter.newsResponse.getPosition(article));
                 }
             });
             holder.title.setText(article.getTitle());
@@ -128,7 +125,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
 
     private void startDetailView(Article article) {
         article.setRead(true);
-        presenter.serArticleRead(article);
+        presenter.setArticleRead(article);
         Intent intent = new Intent(context, DetailActivity.class);
         intent.putExtra("EXTRA_URL", article.getUrl());
         context.startActivity(intent);
@@ -136,7 +133,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
 
     @Override
     public int getItemCount() {
-        return response.getArticles().size();
+        return presenter.newsResponse.getArticles().size();
     }
 
     public void setUndoOn(boolean undoOn) {
@@ -148,7 +145,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
     }
 
     public void pendingRemoval(final int position) {
-        final Article article = response.getArticles().get(position);
+        final Article article = presenter.newsResponse.getArticles().get(position);
         if (!itemsPendingRemoval.contains(article.getID())) {
             itemsPendingRemoval.add(article.getID());
             // this will redraw row in "undo" state
@@ -157,7 +154,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
             Runnable pendingRemovalRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    remove(response.getPosition(article));
+                    remove(presenter.newsResponse.getPosition(article));
                 }
             };
             handler.postDelayed(pendingRemovalRunnable, PENDING_REMOVAL_TIMEOUT);
@@ -364,19 +361,19 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
     }
 
     public void remove(int position) {
-        final Article article = response.getArticles().get(position);
+        final Article article = presenter.newsResponse.getArticles().get(position);
         if (itemsPendingRemoval.contains(article.getID())) {
             itemsPendingRemoval.remove(article.getID());
         }
-        if (response.getArticles().contains(article)) {
+        if (presenter.newsResponse.getArticles().contains(article)) {
             presenter.removeArticle(article);
-            response.remove(article);
+            presenter.newsResponse.remove(article);
             notifyItemRemoved(position);
         }
     }
 
     public boolean isPendingRemoval(int position) {
-        final Article article = response.getArticles().get(position);
+        final Article article = presenter.newsResponse.getArticles().get(position);
         return itemsPendingRemoval.contains(article.getID());
     }
 
@@ -394,7 +391,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
         public MainViewHolder(View itemView) {
             super(itemView);
             mainImage = itemView.findViewById(R.id.iv_main);
-            title = itemView.findViewById(R.id.tv_title);
+            title = itemView.findViewById(R.id.tv_name);
             author = itemView.findViewById(R.id.tv_author);
             date = itemView.findViewById(R.id.tv_date);
             description = itemView.findViewById(R.id.tv_description);
