@@ -35,10 +35,19 @@ public class Article implements Comparable<Article> {
     private String url;
     private String urlToImage;
     private Date publishedAt;
+    private boolean isRead;
+
+    public boolean isRead() {
+        return isRead;
+    }
+
+    public void setRead(boolean read) {
+        isRead = read;
+    }
 
     public Article(){}
 
-    public Article(int dbId, Source source, String author, String title, String description, String url, String urlToImage, Date publishedAt) {
+    public Article(int dbId, Source source, String author, String title, String description, String url, String urlToImage, Date publishedAt, boolean isRead) {
         this.dbId = dbId;
         this.source = source;
         this.author = author;
@@ -47,8 +56,9 @@ public class Article implements Comparable<Article> {
         this.url = url;
         this.urlToImage = urlToImage;
         this.publishedAt = publishedAt;
+        this.isRead = isRead;
     }
-    public Article(int dbId, Source source, String author, String title, String description, String url, String urlToImage, String publishedAt) {
+    public Article(int dbId, Source source, String author, String title, String description, String url, String urlToImage, String publishedAt, boolean isRead) {
         this.dbId = dbId;
         this.source = source;
         this.author = author;
@@ -61,6 +71,7 @@ public class Article implements Comparable<Article> {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        this.isRead = isRead;
     }
 
     public Source getSource() {

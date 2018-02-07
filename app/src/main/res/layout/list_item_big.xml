@@ -89,4 +89,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/tvNew"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/tnew"
+        android:textColor="@color/firstLetter"
+        android:background="@color/primary_dark_energy"
+        android:padding="2dp"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/iv_main"
+        app:layout_constraintTop_toTopOf="@+id/iv_main" />
+
 </android.support.constraint.ConstraintLayout>

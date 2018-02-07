@@ -8,7 +8,8 @@ import com.sdirin.java.newstracker.data.network.RetrofitClient;
  */
 
 public class ServiceProvider {
-
+    //getNews
+    //top-headlines?sources=polygon&apiKey=7937bcf0615d4283bf3dcd18240a7f73
     public static final String BASE_HOST = "https://newsapi.org/";
     public static final String BASE_URL = BASE_HOST + "v2/";
 

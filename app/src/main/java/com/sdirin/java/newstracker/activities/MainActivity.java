@@ -126,6 +126,9 @@ public class MainActivity extends AppCompatActivity implements MainScreen {
             this.newsResponse = new NewsResponse();
         }
         this.newsResponse.combineWith(newsResponse);
+        if (adapter != null){
+            adapter.notifyDataSetChanged();
+        }
     }
 
     public void displayList() {

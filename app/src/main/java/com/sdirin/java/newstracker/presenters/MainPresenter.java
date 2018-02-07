@@ -46,6 +46,7 @@ public class MainPresenter {
         newsResponse.setMessage("ok");
 //        screen.logD("loaded DB");
         newsResponse.setArticles(db.getAllArticles());
+//        screen.logD("loadFromDB: news count = "+newsResponse.getArticles().size());
         newsResponse.orderByDate();
         screen.setNewsResponse(newsResponse);
     }
@@ -85,7 +86,8 @@ public class MainPresenter {
                         screen.logD("Error loading news");
                         return;
                     }
-                    safeToDb(newsResponse);
+//                    screen.logD("onResponse: news count = "+newsResponseNetwork.getArticles().size());
+                    safeToDb(newsResponseNetwork);
                     loadFromDB();
                 } else {
                     int statusCode = response.code();
@@ -104,6 +106,7 @@ public class MainPresenter {
     }
 
     private void safeToDb(NewsResponse response) {
+//        screen.logD("safeToDb: news count = "+response.getArticles().size());
         for (int i=0; i<response.getArticles().size(); i++){
             db.addArticle(response.getArticles().get(i));
         }
@@ -133,5 +136,9 @@ public class MainPresenter {
 
     public void removeArticle(Article article) {
         db.deleteArticle(article);
+    }
+
+    public void serArticleRead(Article article) {
+        db.setArticleRead(article);
     }
 }

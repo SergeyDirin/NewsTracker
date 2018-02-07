@@ -42,6 +42,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String KEY_URL_TO_IMAGE = "url_to_image";
     public static final String KEY_PUBLISHED_AT = "published_at";
     public static final String KEY_IS_DELETED = "is_deleted";
+    public static final String KEY_IS_READ = "is_read";
 
     /**
      * Table Sources fields
@@ -67,7 +68,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 KEY_URL + " TEXT," +
                 KEY_URL_TO_IMAGE + " TEXT," +
                 KEY_PUBLISHED_AT + " TEXT," +
-                KEY_IS_DELETED + " INTEGER" +")";
+                KEY_IS_DELETED + " INTEGER," +
+                KEY_IS_READ + " INTEGER" +")";
         db.execSQL(create_articles_table);
         String create_sources_table = "CREATE TABLE " + TABLE_SOURCES + "(" +
                 KEY_ID +" INTEGER PRIMARY KEY, " +
@@ -189,6 +191,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_URL_TO_IMAGE, article.getUrlToImage());
         values.put(KEY_PUBLISHED_AT, article.getPublishedAtFullString());
         values.put(KEY_IS_DELETED, 0);
+        values.put(KEY_IS_READ, article.isRead()?1:0);
 
         SQLiteDatabase db = getWritableDatabase();
         db.insert(TABLE_ARTICLES, null, values);
@@ -207,7 +210,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                         KEY_URL,
                         KEY_URL_TO_IMAGE,
                         KEY_PUBLISHED_AT,
-                        KEY_IS_DELETED},
+                        KEY_IS_DELETED,
+                        KEY_IS_READ},
                 KEY_ID + "=?",
                 new String[]{Integer.toString(id)},null,null,null);
         if (cursor == null) {
@@ -222,6 +226,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         article.setDescription(cursor.getString(4));
         article.setUrl(cursor.getString(5));
         article.setUrlToImage(cursor.getString(6));
+        article.setRead(cursor.getInt(cursor.getColumnIndex(KEY_IS_READ))>0);
         try {
             article.setPublishedAtString(cursor.getString(7));
         } catch (ParseException e) {
@@ -249,7 +254,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                         KEY_DESCRIPTION,
                         KEY_URL,
                         KEY_URL_TO_IMAGE,
-                        KEY_PUBLISHED_AT},
+                        KEY_PUBLISHED_AT,
+                        KEY_IS_READ},
                 KEY_TITLE + "=?",
                 new String[]{title},null,null,null);
         if (cursor == null) {
@@ -267,6 +273,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         article.setDescription(cursor.getString(4));
         article.setUrl(cursor.getString(5));
         article.setUrlToImage(cursor.getString(6));
+        article.setRead(cursor.getInt(cursor.getColumnIndex(KEY_IS_READ))>0);
         try {
             article.setPublishedAtString(cursor.getString(7));
         } catch (ParseException e) {
@@ -287,7 +294,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         List<Article> articleList = new ArrayList<>();
 
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT a.*,s.name FROM "+TABLE_ARTICLES+" a, " + TABLE_SOURCES + " s WHERE a."+KEY_SOURCE_ID+"=s."+KEY_SOURCE_ID+" AND a."+KEY_IS_DELETED+"=0",null);
+        Cursor cursor = db.rawQuery("SELECT a.*,s.name FROM "+
+                TABLE_ARTICLES+" a, " + TABLE_SOURCES +
+                " s WHERE a."+KEY_SOURCE_ID+"=s."+KEY_SOURCE_ID+" AND a."+KEY_IS_DELETED+"=0",
+                null);
 
         if (cursor == null) {
             return null;
@@ -304,7 +314,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                             cursor.getString(cursor.getColumnIndex(KEY_DESCRIPTION)),
                             cursor.getString(cursor.getColumnIndex(KEY_URL)),
                             cursor.getString(cursor.getColumnIndex(KEY_URL_TO_IMAGE)),
-                            cursor.getString(cursor.getColumnIndex(KEY_PUBLISHED_AT))
+                            cursor.getString(cursor.getColumnIndex(KEY_PUBLISHED_AT)),
+                            cursor.getInt(cursor.getColumnIndex(KEY_IS_READ))>0
                     );
                     articleList.add(article);
                 }
@@ -336,6 +347,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_URL, article.getUrl());
         values.put(KEY_URL_TO_IMAGE, article.getUrlToImage());
         values.put(KEY_PUBLISHED_AT, article.getPublishedAtFullString());
+        values.put(KEY_IS_READ, article.isRead()?1:0);
 
         if (article.getDbId() < 0){
             return db.update(TABLE_ARTICLES, values, KEY_TITLE + " = ?",
@@ -362,6 +374,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void setArticleRead(Article article) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_IS_READ, 1);
+
+        if (article.getDbId() < 0){
+            db.update(TABLE_ARTICLES, values, KEY_TITLE + " = ?",
+                    new String[]{article.getTitle()});
+        } else {
+            db.update(TABLE_ARTICLES, values, KEY_ID + " = ?",
+                    new String[]{Integer.toString(article.getDbId())});
+        }
+    }
 }
 
 

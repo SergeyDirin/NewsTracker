@@ -90,6 +90,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
             holder.date.setVisibility(View.INVISIBLE);
             holder.description.setVisibility(View.INVISIBLE);
             holder.by.setVisibility(View.INVISIBLE);
+            holder.tvNew.setVisibility(View.INVISIBLE);
             holder.itemView.setOnClickListener(null);
         } else {
             holder.undoButton.setVisibility(View.INVISIBLE);
@@ -110,6 +111,11 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
             holder.title.setText(article.getTitle());
             holder.author.setText(article.getAuthor());
             holder.date.setText(article.getPublishedAtString());
+            if (article.isRead()) {
+                holder.tvNew.setVisibility(View.GONE);
+            } else {
+                holder.tvNew.setVisibility(View.VISIBLE);
+            }
             holder.description.setText(article.getDescription());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -121,6 +127,8 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
     }
 
     private void startDetailView(Article article) {
+        article.setRead(true);
+        presenter.serArticleRead(article);
         Intent intent = new Intent(context, DetailActivity.class);
         intent.putExtra("EXTRA_URL", article.getUrl());
         context.startActivity(intent);
@@ -380,6 +388,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
         public TextView date;
         public TextView description;
         public TextView by;
+        public TextView tvNew;
         Button undoButton;
 
         public MainViewHolder(View itemView) {
@@ -390,6 +399,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
             date = itemView.findViewById(R.id.tv_date);
             description = itemView.findViewById(R.id.tv_description);
             by = itemView.findViewById(R.id.tv_by);
+            tvNew = itemView.findViewById(R.id.tvNew);
             undoButton = itemView.findViewById(R.id.undoButton);
         }
     }
