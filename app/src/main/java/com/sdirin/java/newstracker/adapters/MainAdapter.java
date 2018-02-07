@@ -374,7 +374,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
         }
         if (presenter.newsResponse.getArticles().contains(article)) {
             presenter.removeArticle(article);
-            presenter.newsResponse.remove(article);
             notifyItemRemoved(position);
         }
     }

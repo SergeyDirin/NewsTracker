@@ -16,6 +16,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.sdirin.java.newstracker.R;
@@ -65,6 +66,17 @@ public class MainActivity extends BasicActivity implements MainScreen {
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.refresh:
+                presenter.loadFromNetwork();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         state = layoutManager.onSaveInstanceState();
@@ -86,7 +98,7 @@ public class MainActivity extends BasicActivity implements MainScreen {
     @Override
     protected void onStart() {
         super.onStart();
-//        presenter.onStart();
+        presenter.onStart();
         askPermition();
     }
 

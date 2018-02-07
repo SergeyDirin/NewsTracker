@@ -77,8 +77,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 KEY_IS_READ + " INTEGER" +")";
         db.execSQL(create_articles_table);
         String create_sources_table = "CREATE TABLE " + TABLE_SOURCES + "(" +
-                KEY_ID +" INTEGER PRIMARY KEY, " +
-                KEY_SOURCE_ID +" TEXT, " +
+                KEY_SOURCE_ID +" TEXT PRIMARY KEY, " +
                 KEY_NAME + " TEXT, " +
                 KEY_DESCRIPTION_SOURCE + " TEXT, " +
                 KEY_URL_SOURCE + " TEXT, " +
@@ -126,7 +125,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         Cursor cursor = db.query(TABLE_SOURCES,
                 new String[]{
-                        KEY_ID,
                         KEY_SOURCE_ID,
                         KEY_NAME,
                         KEY_DESCRIPTION_SOURCE,
@@ -145,13 +143,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             return null;
         }
         Source source = new Source(
-                cursor.getString(1),
-                cursor.getString(2),
-                cursor.getString(3),
-                cursor.getString(4),
-                cursor.getString(5),
-                cursor.getString(6),
-                cursor.getString(7));
+                cursor.getString(cursor.getColumnIndex(KEY_SOURCE_ID)),
+                cursor.getString(cursor.getColumnIndex(KEY_NAME)),
+                cursor.getString(cursor.getColumnIndex(KEY_DESCRIPTION_SOURCE)),
+                cursor.getString(cursor.getColumnIndex(KEY_URL_SOURCE)),
+                cursor.getString(cursor.getColumnIndex(KEY_CATEGORY)),
+                cursor.getString(cursor.getColumnIndex(KEY_LANGUAGE)),
+                cursor.getString(cursor.getColumnIndex(KEY_COUNTRY))
+        );
         cursor.close();
         return source;
     }
@@ -169,13 +168,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         if (cursor.moveToFirst()){
             do {
                 Source source = new Source(
-                        cursor.getString(1),
-                        cursor.getString(2),
-                        cursor.getString(3),
-                        cursor.getString(4),
-                        cursor.getString(5),
-                        cursor.getString(6),
-                        cursor.getString(7));
+                        cursor.getString(cursor.getColumnIndex(KEY_SOURCE_ID)),
+                        cursor.getString(cursor.getColumnIndex(KEY_NAME)),
+                        cursor.getString(cursor.getColumnIndex(KEY_DESCRIPTION_SOURCE)),
+                        cursor.getString(cursor.getColumnIndex(KEY_URL_SOURCE)),
+                        cursor.getString(cursor.getColumnIndex(KEY_CATEGORY)),
+                        cursor.getString(cursor.getColumnIndex(KEY_LANGUAGE)),
+                        cursor.getString(cursor.getColumnIndex(KEY_COUNTRY))
+                );
                 sourceList.add(source);
             } while (cursor.moveToNext());
         }
@@ -227,6 +227,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Article oldArticle = getArticleByTitle(article.getTitle());
         if (oldArticle != null){
             article.setRead(oldArticle.isRead());
+            article.setDeleted(oldArticle.isDeleted());
             updateArticle(article);
             return;
         }
@@ -239,7 +240,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_URL, article.getUrl());
         values.put(KEY_URL_TO_IMAGE, article.getUrlToImage());
         values.put(KEY_PUBLISHED_AT, article.getPublishedAtFullString());
-        values.put(KEY_IS_DELETED, 0);
+        values.put(KEY_IS_DELETED, article.isDeleted()?1:0);
         values.put(KEY_IS_READ, article.isRead()?1:0);
 
         SQLiteDatabase db = getWritableDatabase();
@@ -269,13 +270,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         cursor.moveToFirst();
         Article article = new Article();
-        article.setDbId(Integer.parseInt(cursor.getString(0)));
-        article.setAuthor(cursor.getString(2));
-        article.setTitle(cursor.getString(3));
-        article.setDescription(cursor.getString(4));
-        article.setUrl(cursor.getString(5));
-        article.setUrlToImage(cursor.getString(6));
+        article.setDbId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(KEY_ID))));
+        article.setAuthor(cursor.getString(cursor.getColumnIndex(KEY_AUTHOR)));
+        article.setTitle(cursor.getString(cursor.getColumnIndex(KEY_TITLE)));
+        article.setDescription(cursor.getString(cursor.getColumnIndex(KEY_DESCRIPTION)));
+        article.setUrl(cursor.getString(cursor.getColumnIndex(KEY_URL)));
+        article.setUrlToImage(cursor.getString(cursor.getColumnIndex(KEY_URL_TO_IMAGE)));
         article.setRead(cursor.getInt(cursor.getColumnIndex(KEY_IS_READ))>0);
+        article.setDeleted(cursor.getInt(cursor.getColumnIndex(KEY_IS_DELETED))>0);
         try {
             article.setPublishedAtString(cursor.getString(7));
         } catch (ParseException e) {
@@ -304,7 +306,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                         KEY_URL,
                         KEY_URL_TO_IMAGE,
                         KEY_PUBLISHED_AT,
-                        KEY_IS_READ},
+                        KEY_IS_READ,
+                        KEY_IS_DELETED},
                 KEY_TITLE + "=?",
                 new String[]{title},null,null,null);
         if (cursor == null) {
@@ -316,13 +319,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             return null;
         }
         Article article = new Article();
-        article.setDbId(Integer.parseInt(cursor.getString(0)));
-        article.setAuthor(cursor.getString(2));
-        article.setTitle(cursor.getString(3));
-        article.setDescription(cursor.getString(4));
-        article.setUrl(cursor.getString(5));
-        article.setUrlToImage(cursor.getString(6));
+        article.setDbId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(KEY_ID))));
+        article.setAuthor(cursor.getString(cursor.getColumnIndex(KEY_AUTHOR)));
+        article.setTitle(cursor.getString(cursor.getColumnIndex(KEY_TITLE)));
+        article.setDescription(cursor.getString(cursor.getColumnIndex(KEY_DESCRIPTION)));
+        article.setUrl(cursor.getString(cursor.getColumnIndex(KEY_URL)));
+        article.setUrlToImage(cursor.getString(cursor.getColumnIndex(KEY_URL_TO_IMAGE)));
         article.setRead(cursor.getInt(cursor.getColumnIndex(KEY_IS_READ))>0);
+        article.setDeleted(cursor.getInt(cursor.getColumnIndex(KEY_IS_DELETED))>0);
         try {
             article.setPublishedAtString(cursor.getString(7));
         } catch (ParseException e) {
@@ -371,7 +375,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                             cursor.getString(cursor.getColumnIndex(KEY_URL)),
                             cursor.getString(cursor.getColumnIndex(KEY_URL_TO_IMAGE)),
                             cursor.getString(cursor.getColumnIndex(KEY_PUBLISHED_AT)),
-                            cursor.getInt(cursor.getColumnIndex(KEY_IS_READ))>0
+                            cursor.getInt(cursor.getColumnIndex(KEY_IS_READ))>0,
+                            cursor.getInt(cursor.getColumnIndex(KEY_IS_DELETED))>0
                     );
                     articleList.add(article);
                 }
@@ -404,6 +409,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_URL_TO_IMAGE, article.getUrlToImage());
         values.put(KEY_PUBLISHED_AT, article.getPublishedAtFullString());
         values.put(KEY_IS_READ, article.isRead()?1:0);
+        values.put(KEY_IS_DELETED, article.isDeleted()?1:0);
 
         if (article.getDbId() < 0){
             return db.update(TABLE_ARTICLES, values, KEY_TITLE + " = ?",
@@ -416,14 +422,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void deleteArticle(Article article){
         SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_IS_DELETED, 1);
         if (article.getDbId() < 0){
-            ContentValues values = new ContentValues();
-            values.put(KEY_IS_DELETED, 1);
             db.update(TABLE_ARTICLES, values, KEY_TITLE + " = ?",
                     new String[]{article.getTitle()});
         } else {
-            ContentValues values = new ContentValues();
-            values.put(KEY_IS_DELETED, 1);
             db.update(TABLE_ARTICLES, values, KEY_ID + " = ?",
                     new String[]{Integer.toString(article.getDbId())});
         }

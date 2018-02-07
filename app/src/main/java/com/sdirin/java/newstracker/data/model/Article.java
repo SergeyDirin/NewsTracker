@@ -36,6 +36,15 @@ public class Article implements Comparable<Article> {
     private String urlToImage;
     private Date publishedAt;
     private boolean isRead;
+    private boolean isDeleted;
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
 
     public boolean isRead() {
         return isRead;
@@ -45,9 +54,9 @@ public class Article implements Comparable<Article> {
         isRead = read;
     }
 
-    public Article(){}
+    public Article() {}
 
-    public Article(int dbId, Source source, String author, String title, String description, String url, String urlToImage, Date publishedAt, boolean isRead) {
+    public Article(int dbId, Source source, String author, String title, String description, String url, String urlToImage, Date publishedAt, boolean isRead, boolean isDeleted) {
         this.dbId = dbId;
         this.source = source;
         this.author = author;
@@ -57,8 +66,9 @@ public class Article implements Comparable<Article> {
         this.urlToImage = urlToImage;
         this.publishedAt = publishedAt;
         this.isRead = isRead;
+        this.isDeleted = isDeleted;
     }
-    public Article(int dbId, Source source, String author, String title, String description, String url, String urlToImage, String publishedAt, boolean isRead) {
+    public Article(int dbId, Source source, String author, String title, String description, String url, String urlToImage, String publishedAt, boolean isRead, boolean isDeleted) {
         this.dbId = dbId;
         this.source = source;
         this.author = author;
@@ -72,6 +82,7 @@ public class Article implements Comparable<Article> {
             e.printStackTrace();
         }
         this.isRead = isRead;
+        this.isDeleted = isDeleted;
     }
 
     public Source getSource() {

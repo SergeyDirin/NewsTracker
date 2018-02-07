@@ -21,7 +21,7 @@ public class DetailActivity extends BasicActivity {
 
         WebView webView = (WebView) findViewById(R.id.webView);
         WebSettings webSettings = webView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
+//        webSettings.setJavaScriptEnabled(true);
         webView.setWebViewClient(new LocalWebViewClient());
         Intent i = getIntent();
 

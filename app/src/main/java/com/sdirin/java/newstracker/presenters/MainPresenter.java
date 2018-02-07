@@ -42,8 +42,6 @@ public class MainPresenter {
     }
 
     public void onResume(){
-        loadFromDB();
-        loadFromNetwork();
     }
 
     private void loadFromDB() {
@@ -58,6 +56,8 @@ public class MainPresenter {
 
     public void onStart(){
         screen.askPermition();
+        loadFromDB();
+        loadFromNetwork();
     }
 
     public void loadFromNetwork(){
@@ -139,6 +139,7 @@ public class MainPresenter {
 
     public void removeArticle(Article article) {
         db.deleteArticle(article);
+        newsResponse.remove(article);
     }
 
     public void setArticleRead(Article article) {
