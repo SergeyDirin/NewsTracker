@@ -5,6 +5,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.sdirin.java.newstracker.R;
@@ -38,6 +40,17 @@ public class SourcesAdapter extends RecyclerView.Adapter<SourcesAdapter.SourcesV
         holder.category.setText(source.getCategory());
         holder.language.setText(source.getLanguage());
         holder.country.setText(source.getCountry());
+        holder.selected.setChecked(presenter.selectedSources.has(source.getId()));
+        holder.selected.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    presenter.selectedSources.setSource(source);
+                } else {
+                    presenter.selectedSources.removeSource(source);
+                }
+            }
+        });
     }
 
     @Override
@@ -52,6 +65,7 @@ public class SourcesAdapter extends RecyclerView.Adapter<SourcesAdapter.SourcesV
         public TextView category;
         public TextView language;
         public TextView country;
+        public CheckBox selected;
 
         public SourcesViewHolder(View itemView) {
             super(itemView);
@@ -60,6 +74,7 @@ public class SourcesAdapter extends RecyclerView.Adapter<SourcesAdapter.SourcesV
             category = itemView.findViewById(R.id.tv_category);
             language = itemView.findViewById(R.id.tv_language);
             country = itemView.findViewById(R.id.tv_country);
+            selected = itemView.findViewById(R.id.cb_selected);
         }
     }
 }

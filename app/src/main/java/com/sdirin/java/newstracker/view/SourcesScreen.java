@@ -1,6 +1,7 @@
 package com.sdirin.java.newstracker.view;
 
 
+import com.sdirin.java.newstracker.data.SelectedSources;
 import com.sdirin.java.newstracker.data.model.SourcesResponse;
 
 /**
@@ -10,4 +11,6 @@ import com.sdirin.java.newstracker.data.model.SourcesResponse;
 public interface SourcesScreen extends BasicScreen {
 
     void setSourcesResponse(SourcesResponse newsResponse);
+
+    SelectedSources getSelectedSources();
 }

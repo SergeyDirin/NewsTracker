@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.sdirin.java.newstracker.R;
 import com.sdirin.java.newstracker.adapters.SourcesAdapter;
+import com.sdirin.java.newstracker.data.SelectedSources;
 import com.sdirin.java.newstracker.data.model.SourcesResponse;
 import com.sdirin.java.newstracker.database.DatabaseHandler;
 import com.sdirin.java.newstracker.presenters.SourcesPresenter;
@@ -71,6 +72,11 @@ public class SourcesActivity extends BasicActivity implements SourcesScreen {
         if (adapter != null){
             adapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    public SelectedSources getSelectedSources() {
+        return new SelectedSources(this);
     }
 
     @Override

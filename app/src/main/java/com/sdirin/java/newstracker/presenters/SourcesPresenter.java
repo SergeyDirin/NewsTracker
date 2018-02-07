@@ -3,6 +3,7 @@ package com.sdirin.java.newstracker.presenters;
 import android.support.annotation.NonNull;
 import android.support.test.espresso.idling.CountingIdlingResource;
 
+import com.sdirin.java.newstracker.data.SelectedSources;
 import com.sdirin.java.newstracker.data.ServiceProvider;
 import com.sdirin.java.newstracker.data.model.SourcesResponse;
 import com.sdirin.java.newstracker.data.model.parse.SourcesParser;
@@ -26,6 +27,7 @@ public class SourcesPresenter {
     private NewsService mService;
 
     public SourcesResponse sourcesResponse;
+    public SelectedSources selectedSources;
     private DatabaseHandler db;
 
     //testing network support
@@ -36,6 +38,7 @@ public class SourcesPresenter {
         mService = new ServiceProvider().getService();
         this.screen = screen;
         this.db = screen.getDb();
+        selectedSources = screen.getSelectedSources();
     }
 
     public void onResume(){
