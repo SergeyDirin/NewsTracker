@@ -1,6 +1,6 @@
 package com.sdirin.java.newstracker.data.model;
 
-import com.sdirin.java.newstracker.data.parse.NewsServiceParser;
+import com.sdirin.java.newstracker.data.parse.NewsParser;
 
 import junit.framework.Assert;
 
@@ -16,8 +16,8 @@ public class NewsResponseTest {
 
     @Test
     public void combineWith() throws Exception {
-        NewsResponse newsResponse = NewsServiceParser.fromJson(ARTICLES_JSON);
-        NewsResponse newsResponseToAdd = NewsServiceParser.fromJson(ARTICLES_JSON_NEW);
+        NewsResponse newsResponse = NewsParser.fromJson(ARTICLES_JSON);
+        NewsResponse newsResponseToAdd = NewsParser.fromJson(ARTICLES_JSON_NEW);
 
         Assert.assertEquals(2,newsResponse.getArticles().size());
         Assert.assertEquals(2,newsResponseToAdd.getArticles().size());
@@ -29,7 +29,7 @@ public class NewsResponseTest {
 
     @Test
     public void combineWithEmpty() throws Exception {
-        NewsResponse newsResponse = NewsServiceParser.fromJson(ARTICLES_JSON);
+        NewsResponse newsResponse = NewsParser.fromJson(ARTICLES_JSON);
         NewsResponse newsResponseToAdd = new NewsResponse();
 
         Assert.assertEquals(2,newsResponse.getArticles().size());
@@ -42,7 +42,7 @@ public class NewsResponseTest {
     @Test
     public void emptyCombineWith() throws Exception {
         NewsResponse newsResponse = new NewsResponse();
-        NewsResponse newsResponseToAdd = NewsServiceParser.fromJson(ARTICLES_JSON);
+        NewsResponse newsResponseToAdd = NewsParser.fromJson(ARTICLES_JSON);
 
         Assert.assertEquals(2,newsResponseToAdd.getArticles().size());
 

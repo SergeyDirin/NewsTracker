@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.sdirin.java.newstracker.data.model.NewsResponse;
 import com.sdirin.java.newstracker.data.network.mock.Requests;
-import com.sdirin.java.newstracker.data.parse.NewsServiceParser;
+import com.sdirin.java.newstracker.data.parse.NewsParser;
 import com.sdirin.java.newstracker.database.DatabaseHandler;
 import com.sdirin.java.newstracker.view.MainScreen;
 
@@ -43,7 +43,7 @@ public class MainPresenterTest {
     @Test
     public void loadFromDB() throws Exception {
         when(screenMock.getDb()).thenReturn(dbMock);
-        NewsResponse newsResponse = NewsServiceParser.fromJson(Requests.ARTICLES_JSON);
+        NewsResponse newsResponse = NewsParser.fromJson(Requests.ARTICLES_JSON);
         when(dbMock.getAllArticles()).thenReturn(newsResponse.getArticles());
         MainPresenter presenter = new MainPresenter(screenMock);
 

@@ -109,7 +109,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
                     .into(holder.mainImage);
 
             holder.title.setText(article.getTitle());
-            holder.author.setText(article.getAuthor());
+            holder.author.setText(article.getAuthor()+" ("+article.getSource().getName()+")");
             holder.date.setText(article.getPublishedAtString());
             if (article.isRead()) {
                 holder.tvNew.setVisibility(View.GONE);

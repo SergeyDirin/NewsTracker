@@ -12,12 +12,12 @@ import java.text.ParseException;
 /**
  * Created by SDirin on 02-Jan-18.
  */
-public class NewsServiceParserTest {
+public class NewsParserTest {
     @Test
     public void checkOkJson() {
         NewsResponse response;
         try {
-            response = NewsServiceParser.fromJson(Requests.OK_RESP);
+            response = NewsParser.fromJson(Requests.OK_RESP);
         } catch (ParseException e) {
             e.printStackTrace();
             throw new AssertionError("Parse exception = " + e.getMessage());
@@ -35,7 +35,7 @@ public class NewsServiceParserTest {
     public void checkNoApi() {
         NewsResponse response;
         try {
-            response = NewsServiceParser.fromJson(Requests.NO_API);
+            response = NewsParser.fromJson(Requests.NO_API);
         } catch (ParseException e) {
             e.printStackTrace();
             throw new AssertionError("Parse exception = " + e.getMessage());
@@ -50,7 +50,7 @@ public class NewsServiceParserTest {
     public void checkTooManyRequests() {
         NewsResponse response;
         try {
-            response = NewsServiceParser.fromJson(Requests.TOO_MANY_REQUESTS);
+            response = NewsParser.fromJson(Requests.TOO_MANY_REQUESTS);
         } catch (ParseException e) {
             e.printStackTrace();
             throw new AssertionError("Parse exception = " + e.getMessage());
@@ -65,7 +65,7 @@ public class NewsServiceParserTest {
     public void checkWrongApiKey() {
         NewsResponse response;
         try {
-            response = NewsServiceParser.fromJson(Requests.WRONG_APIKEY);
+            response = NewsParser.fromJson(Requests.WRONG_APIKEY);
         } catch (ParseException e) {
             e.printStackTrace();
             throw new AssertionError("Parse exception = " + e.getMessage());
@@ -80,7 +80,7 @@ public class NewsServiceParserTest {
     public void checkOkWithNull() {
         NewsResponse response;
         try {
-            response = NewsServiceParser.fromJson(Requests.OK_WITH_NULL);
+            response = NewsParser.fromJson(Requests.OK_WITH_NULL);
         } catch (ParseException e) {
             e.printStackTrace();
             throw new AssertionError("Parse exception = " + e.getMessage());

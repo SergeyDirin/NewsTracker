@@ -7,7 +7,7 @@ import com.sdirin.java.newstracker.data.ServiceProvider;
 import com.sdirin.java.newstracker.data.model.Article;
 import com.sdirin.java.newstracker.data.model.NewsResponse;
 import com.sdirin.java.newstracker.data.network.NewsService;
-import com.sdirin.java.newstracker.data.parse.NewsServiceParser;
+import com.sdirin.java.newstracker.data.parse.NewsParser;
 import com.sdirin.java.newstracker.database.DatabaseHandler;
 import com.sdirin.java.newstracker.view.MainScreen;
 
@@ -80,7 +80,7 @@ public class MainPresenter {
                     //screen.logD("loaded network");
                     NewsResponse newsResponseNetwork;
                     try {
-                        newsResponseNetwork = NewsServiceParser.fromJson(response.body());
+                        newsResponseNetwork = NewsParser.fromJson(response.body());
                     } catch (ParseException e) {
                         e.printStackTrace();
                         screen.logD("Error loading news");

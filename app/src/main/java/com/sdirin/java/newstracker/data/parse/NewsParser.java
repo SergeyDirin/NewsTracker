@@ -16,7 +16,7 @@ import java.util.List;
  * Created by SDirin on 02-Jan-18.
  */
 
-public class NewsServiceParser {
+public class NewsParser {
 
     public static NewsResponse fromJson(String json) throws ParseException {
 
