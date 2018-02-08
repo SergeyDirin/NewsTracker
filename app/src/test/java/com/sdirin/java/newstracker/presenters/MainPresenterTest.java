@@ -2,10 +2,10 @@ package com.sdirin.java.newstracker.presenters;
 
 import android.util.Log;
 
+import com.sdirin.java.newstracker.data.database.DatabaseHandler;
 import com.sdirin.java.newstracker.data.model.NewsResponse;
 import com.sdirin.java.newstracker.data.model.parse.NewsParser;
 import com.sdirin.java.newstracker.data.network.mock.Requests;
-import com.sdirin.java.newstracker.database.DatabaseHandler;
 import com.sdirin.java.newstracker.view.MainScreen;
 
 import junit.framework.Assert;

@@ -5,11 +5,11 @@ import android.support.test.espresso.idling.CountingIdlingResource;
 
 import com.sdirin.java.newstracker.data.SelectedSources;
 import com.sdirin.java.newstracker.data.ServiceProvider;
+import com.sdirin.java.newstracker.data.database.DatabaseHandler;
 import com.sdirin.java.newstracker.data.model.Article;
 import com.sdirin.java.newstracker.data.model.NewsResponse;
 import com.sdirin.java.newstracker.data.model.parse.NewsParser;
 import com.sdirin.java.newstracker.data.network.NewsService;
-import com.sdirin.java.newstracker.database.DatabaseHandler;
 import com.sdirin.java.newstracker.view.MainScreen;
 
 import java.text.ParseException;

@@ -22,8 +22,8 @@ import android.widget.Toast;
 import com.sdirin.java.newstracker.R;
 import com.sdirin.java.newstracker.adapters.MainAdapter;
 import com.sdirin.java.newstracker.data.SelectedSources;
+import com.sdirin.java.newstracker.data.database.DatabaseHandler;
 import com.sdirin.java.newstracker.data.model.NewsResponse;
-import com.sdirin.java.newstracker.database.DatabaseHandler;
 import com.sdirin.java.newstracker.presenters.MainPresenter;
 import com.sdirin.java.newstracker.view.MainScreen;
 

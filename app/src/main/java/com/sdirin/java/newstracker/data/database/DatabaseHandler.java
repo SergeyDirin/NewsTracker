@@ -1,4 +1,4 @@
-package com.sdirin.java.newstracker.database;
+package com.sdirin.java.newstracker.data.database;
 
 import android.content.ContentValues;
 import android.content.Context;

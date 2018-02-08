@@ -169,7 +169,6 @@ public class Article implements Comparable<Article> {
             sdf = new SimpleDateFormat("d MMM", Locale.getDefault());
         } else {
             sdf =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-            sdf.setTimeZone(TimeZone.getTimeZone("UTC (+000)"));
         }
         this.publishedAt = sdf.parse(prepare);
     }
