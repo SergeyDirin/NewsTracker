@@ -1,5 +1,9 @@
 package com.sdirin.java.newstracker.data.model;
 
+import android.database.Cursor;
+
+import com.sdirin.java.newstracker.data.database.DatabaseHandler;
+
 /**
  * Created by SDirin on 01-Jan-18.
  */
@@ -82,5 +86,17 @@ public class Source {
 
     public String getName() {
         return name;
+    }
+
+    public static Source fromCursor(Cursor cursor) {
+        return new Source(
+                cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_SOURCE_ID)),
+                cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_NAME)),
+                cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_DESCRIPTION_SOURCE)),
+                cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_URL_SOURCE)),
+                cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_CATEGORY)),
+                cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_LANGUAGE)),
+                cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_COUNTRY))
+        );
     }
 }

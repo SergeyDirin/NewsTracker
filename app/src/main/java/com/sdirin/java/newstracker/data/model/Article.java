@@ -1,6 +1,9 @@
 package com.sdirin.java.newstracker.data.model;
 
+import android.database.Cursor;
 import android.support.annotation.NonNull;
+
+import com.sdirin.java.newstracker.data.database.DatabaseHandler;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -180,5 +183,20 @@ public class Article implements Comparable<Article> {
     @Override
     public int compareTo(@NonNull Article o) {
         return o.getPublishedAt().compareTo(getPublishedAt());
+    }
+
+    public static Article getFromCursor(Cursor cursor) {
+        return new Article(
+                cursor.getInt(cursor.getColumnIndex(DatabaseHandler.KEY_ID)),
+                Source.fromCursor(cursor),
+                cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_AUTHOR)),
+                cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_TITLE)),
+                cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_DESCRIPTION)),
+                cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_URL)),
+                cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_URL_TO_IMAGE)),
+                cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_PUBLISHED_AT)),
+                cursor.getInt(cursor.getColumnIndex(DatabaseHandler.KEY_IS_READ))>0,
+                cursor.getInt(cursor.getColumnIndex(DatabaseHandler.KEY_IS_DELETED))>0
+        );
     }
 }

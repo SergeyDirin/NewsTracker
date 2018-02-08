@@ -23,7 +23,15 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.DetailActivity" />
-        <activity android:name=".activities.SourcesActivity"></activity>
+        <activity android:name=".activities.SourcesActivity" />
+
+        <provider
+            android:name=".data.NewsProvider"
+            android:authorities="com.sdirin.newstracker"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@drawable/ic_launcher_foreground"
+            android:label="NewsTrackerProvider"></provider>
     </application>
 
 </manifest>

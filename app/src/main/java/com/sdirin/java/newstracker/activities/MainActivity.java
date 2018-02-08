@@ -3,15 +3,20 @@ package com.sdirin.java.newstracker.activities;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.test.espresso.idling.CountingIdlingResource;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,22 +25,24 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.sdirin.java.newstracker.R;
-import com.sdirin.java.newstracker.adapters.MainAdapter;
+import com.sdirin.java.newstracker.adapters.ItemAdapter;
+import com.sdirin.java.newstracker.data.NewsProvider;
 import com.sdirin.java.newstracker.data.SelectedSources;
 import com.sdirin.java.newstracker.data.database.DatabaseHandler;
 import com.sdirin.java.newstracker.data.model.NewsResponse;
 import com.sdirin.java.newstracker.presenters.MainPresenter;
 import com.sdirin.java.newstracker.view.MainScreen;
 
-public class MainActivity extends BasicActivity implements MainScreen {
+public class MainActivity extends BasicActivity implements MainScreen, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = "NewsApp";
     private static final int PERMISSIONS_REQUEST_INTERNET = 1;
     private static final String SCROLL_STATE = "savedScrol";
+    private static final int LOADER_ID = 1;
     NewsResponse newsResponse;
     MainPresenter presenter;
 
-    MainAdapter adapter;
+    ItemAdapter adapter;
 
     RecyclerView mRecycleView;
     RecyclerView.LayoutManager layoutManager;
@@ -52,6 +59,9 @@ public class MainActivity extends BasicActivity implements MainScreen {
         setContentView(R.layout.activity_main);
 
         presenter = new MainPresenter(this);
+
+        LoaderManager lm = getSupportLoaderManager();
+        lm.initLoader(LOADER_ID, null, this);
 
         ConnectivityManager cm = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -79,7 +89,7 @@ public class MainActivity extends BasicActivity implements MainScreen {
     @Override
     protected void onPause() {
         super.onPause();
-        state = layoutManager.onSaveInstanceState();
+        //state = layoutManager.onSaveInstanceState();
     }
 
     @Override
@@ -116,20 +126,20 @@ public class MainActivity extends BasicActivity implements MainScreen {
     }
 
     public void displayList() {
-        if (newsResponse == null) {
-            return;
-        }
-        mRecycleView = findViewById(R.id.news_list);
-        if (adapter == null){
-            adapter = new MainAdapter(presenter);
-            layoutManager = new LinearLayoutManager(this);
-            mRecycleView.setLayoutManager(layoutManager);
-            mRecycleView.setItemAnimator(new DefaultItemAnimator());
-            mRecycleView.setAdapter(adapter);
-            layoutManager.onRestoreInstanceState(state);
-        } else {
-            adapter.notifyDataSetChanged();
-        }
+//        if (newsResponse == null) {
+//            return;
+//        }
+//        mRecycleView = findViewById(R.id.news_list);
+//        if (adapter == null){
+//            adapter = new ItemAdapter();
+//            layoutManager = new LinearLayoutManager(this);
+//            mRecycleView.setLayoutManager(layoutManager);
+//            mRecycleView.setItemAnimator(new DefaultItemAnimator());
+//            mRecycleView.setAdapter(adapter);
+//            layoutManager.onRestoreInstanceState(state);
+//        } else {
+//            adapter.notifyDataSetChanged();
+//        }
 
     }
 
@@ -225,5 +235,32 @@ public class MainActivity extends BasicActivity implements MainScreen {
         if (savedInstanceState != null && savedInstanceState.containsKey(SCROLL_STATE)){
             state = savedInstanceState.getParcelable(SCROLL_STATE);
         }
+    }
+
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Uri loaderUri = NewsProvider.ARTICLES_URI;
+
+        return new CursorLoader(this, loaderUri, null, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader loader, Cursor c) {
+        if (adapter == null) {
+            adapter = new ItemAdapter();
+            mRecycleView = findViewById(R.id.news_list);
+            layoutManager = new LinearLayoutManager(this);
+            mRecycleView.setLayoutManager(layoutManager);
+            mRecycleView.setItemAnimator(new DefaultItemAnimator());
+            mRecycleView.setAdapter(adapter);
+        }
+
+        adapter.swapCursor(c);
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+        adapter.swapCursor(null);
     }
 }

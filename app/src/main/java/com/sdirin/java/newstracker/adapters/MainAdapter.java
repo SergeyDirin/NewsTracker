@@ -210,6 +210,9 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
             @Override
             public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
                 int position = viewHolder.getAdapterPosition();
+                if (position < 0) {
+                    return super.getSwipeDirs(recyclerView, viewHolder);
+                }
                 MainAdapter testAdapter = (MainAdapter)recyclerView.getAdapter();
                 if (testAdapter.isUndoOn() && testAdapter.isPendingRemoval(position)) {
                     return 0;
