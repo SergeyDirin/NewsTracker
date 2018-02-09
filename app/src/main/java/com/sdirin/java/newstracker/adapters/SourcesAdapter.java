@@ -1,6 +1,7 @@
 package com.sdirin.java.newstracker.adapters;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,24 +18,19 @@ import com.sdirin.java.newstracker.presenters.SourcesPresenter;
  * Created by User on 07.02.2018.
  */
 
-public class SourcesAdapter extends RecyclerView.Adapter<SourcesAdapter.SourcesViewHolder> {
+public class SourcesAdapter extends RecyclerViewCursorAdapter<SourcesAdapter.SourcesViewHolder> {
 
     private SourcesPresenter presenter;
 
     public SourcesAdapter(SourcesPresenter presenter) {
+        super(null);
         this.presenter = presenter;
+        canDelete = false;
     }
 
     @Override
-    public SourcesViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Context context = parent.getContext();
-        View item = LayoutInflater.from(context).inflate(R.layout.sources_list_item,parent,false);
-        return new SourcesViewHolder(item);
-    }
-
-    @Override
-    public void onBindViewHolder(SourcesViewHolder holder, int position) {
-        final Source source = presenter.sourcesResponse.getSources().get(position);
+    public void onBindViewHolder(SourcesViewHolder holder, Cursor cursor) {
+        final Source source = Source.fromCursor(cursor);
         holder.name.setText(source.getName());
         holder.description.setText(source.getDescription());
         holder.category.setText(source.getCategory());
@@ -54,8 +50,20 @@ public class SourcesAdapter extends RecyclerView.Adapter<SourcesAdapter.SourcesV
     }
 
     @Override
-    public int getItemCount() {
-        return presenter.sourcesResponse.getSources().size();
+    void onBindRemoveViewHolder(SourcesViewHolder holder, Cursor mCursor) {
+
+    }
+
+    @Override
+    void remove(int dbId) {
+        presenter.removeSource(dbId);
+    }
+
+    @Override
+    public SourcesViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        Context context = parent.getContext();
+        View item = LayoutInflater.from(context).inflate(R.layout.sources_list_item,parent,false);
+        return new SourcesViewHolder(item);
     }
 
     public class SourcesViewHolder extends RecyclerView.ViewHolder{

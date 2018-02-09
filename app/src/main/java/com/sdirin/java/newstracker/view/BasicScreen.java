@@ -1,5 +1,7 @@
 package com.sdirin.java.newstracker.view;
 
+import android.content.ContentResolver;
+
 import com.sdirin.java.newstracker.data.SelectedSources;
 
 /**
@@ -19,4 +21,6 @@ public interface BasicScreen {
     boolean isInternetAvailable();
     boolean isPermitionGranted();
     void askPermition();
+
+    ContentResolver getContentResolver();
 }

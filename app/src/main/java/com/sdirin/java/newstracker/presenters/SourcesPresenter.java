@@ -1,11 +1,15 @@
 package com.sdirin.java.newstracker.presenters;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.support.annotation.NonNull;
 import android.support.test.espresso.idling.CountingIdlingResource;
 
+import com.sdirin.java.newstracker.data.NewsProvider;
 import com.sdirin.java.newstracker.data.SelectedSources;
 import com.sdirin.java.newstracker.data.ServiceProvider;
 import com.sdirin.java.newstracker.data.database.DatabaseHandler;
+import com.sdirin.java.newstracker.data.model.Source;
 import com.sdirin.java.newstracker.data.model.SourcesResponse;
 import com.sdirin.java.newstracker.data.model.parse.SourcesParser;
 import com.sdirin.java.newstracker.data.network.NewsService;
@@ -17,6 +21,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_IS_DELETED;
+import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_SOURCE_ID;
+
 /**
  * Created by User on 07.02.2018.
  */
@@ -26,33 +33,24 @@ public class SourcesPresenter {
     SourcesScreen screen;
     private NewsService mService;
 
-    public SourcesResponse sourcesResponse;
     public SelectedSources selectedSources;
-    private DatabaseHandler db;
 
     //testing network support
     private CountingIdlingResource idlingResource;
     private int incrementCalls = 0;
+
+    ContentResolver cr;
 
     public SourcesPresenter(SourcesScreen screen) {
         mService = new ServiceProvider().getService();
         this.screen = screen;
         //this.db = screen.getDb();
         selectedSources = screen.getSelectedSources();
+        this.cr = screen.getContentResolver();
     }
 
     public void onResume(){
-        loadFromDB();
         loadFromNetwork();
-    }
-
-    private void loadFromDB() {
-        sourcesResponse = new SourcesResponse();
-        sourcesResponse.setMessage("ok");
-//        screen.logD("loaded DB");
-//        sourcesResponse.setSources(db.getAllSources());
-        screen.logD("loadFromDB: sources count = "+sourcesResponse.getSources().size());
-        screen.setSourcesResponse(sourcesResponse);
     }
 
     private void loadFromNetwork() {
@@ -79,11 +77,9 @@ public class SourcesPresenter {
                         return;
                     }
                     screen.logD("Sources onResponse: sources count = "+sourcesResponseNetwork.getSources().size());
-                    sourcesResponse.combineWith(sourcesResponseNetwork);
-                    safeToDb(sourcesResponse);
-                    loadFromDB();
+                    safeToDb(sourcesResponseNetwork);
                 } else {
-                    int statusCode = response.code();
+//                    int statusCode = response.code();
                     //screen.logD("onResponse: status code = "+statusCode);
                 }
                 decrementIdlingResource();
@@ -98,9 +94,20 @@ public class SourcesPresenter {
         });
     }
 
-    private void safeToDb(SourcesResponse sourcesResponseNetwork) {
-        for (int i=0; i<sourcesResponseNetwork.getSources().size(); i++){
-//            db.addSource(sourcesResponseNetwork.getSources().get(i));
+    private void safeToDb(SourcesResponse response) {
+        for (int i=0; i<response.getSources().size(); i++){
+            Source source = response.getSources().get(i);
+
+            ContentValues values = new ContentValues();
+            values.put(DatabaseHandler.KEY_SOURCE_ID, source.getId());
+            values.put(DatabaseHandler.KEY_NAME, source.getName());
+            values.put(DatabaseHandler.KEY_DESCRIPTION_SOURCE, source.getDescription());
+            values.put(DatabaseHandler.KEY_URL_SOURCE, source.getUrl());
+            values.put(DatabaseHandler.KEY_CATEGORY, source.getCategory());
+            values.put(DatabaseHandler.KEY_LANGUAGE, source.getLanguage());
+            values.put(DatabaseHandler.KEY_COUNTRY, source.getCountry());
+
+            cr.insert(NewsProvider.SOURCES_URI, values);
         }
     }
 
@@ -120,5 +127,12 @@ public class SourcesPresenter {
 
             idlingResource.decrement();
         }
+    }
+
+    public void removeSource(int dbId) {
+        ContentValues values = new ContentValues();
+        values.put(KEY_IS_DELETED, 1);
+        cr.update(NewsProvider.SOURCES_URI, values, KEY_SOURCE_ID + " = ?",
+                new String[]{Integer.toString(dbId)});
     }
 }

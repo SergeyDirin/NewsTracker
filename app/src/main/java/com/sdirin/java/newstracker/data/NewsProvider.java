@@ -13,6 +13,7 @@ import com.sdirin.java.newstracker.data.database.DatabaseHandler;
 
 import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_ID;
 import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_IS_DELETED;
+import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_NAME;
 import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_PUBLISHED_AT;
 import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_SOURCE_ID;
 import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_TITLE;
@@ -52,7 +53,7 @@ public class NewsProvider extends ContentProvider {
         Cursor c;
         switch (sUriMatcher.match(uri)) {
             case 1:
-                c = db.rawQuery("SELECT a.*,s.* FROM "+
+                c = db.rawQuery("SELECT a.*,s."+KEY_SOURCE_ID+",s."+KEY_NAME+" FROM "+
                                 TABLE_ARTICLES+" a, " + TABLE_SOURCES +
                                 " s WHERE a."+KEY_SOURCE_ID+"=s."+KEY_SOURCE_ID+" AND a."+KEY_IS_DELETED+"=0 ORDER BY "+KEY_PUBLISHED_AT+" DESC",
                         null);
@@ -96,7 +97,7 @@ public class NewsProvider extends ContentProvider {
                     new String[] {values.getAsString(KEY_SOURCE_ID)});
             if (c.getCount() > 0){
                 c.moveToFirst();
-//                    Log.d(TAG,"found same article" + c.getLong(c.getColumnIndex(KEY_ID)));
+                update(uri,values,KEY_SOURCE_ID + " = ?",new String[]{c.getString(c.getColumnIndex(KEY_SOURCE_ID))});
                 return ContentUris.withAppendedId(uri,c.getLong(c.getColumnIndex(KEY_SOURCE_ID)));
             }
             //insert othervise.

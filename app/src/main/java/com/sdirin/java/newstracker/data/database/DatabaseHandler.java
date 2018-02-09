@@ -68,7 +68,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 KEY_IS_READ + " INTEGER" +")";
         db.execSQL(create_articles_table);
         String create_sources_table = "CREATE TABLE " + TABLE_SOURCES + "(" +
-                KEY_SOURCE_ID +" TEXT PRIMARY KEY, " +
+                KEY_ID +" INTEGER PRIMARY KEY, " +
+                KEY_SOURCE_ID +" TEXT, " +
                 KEY_NAME + " TEXT, " +
                 KEY_DESCRIPTION_SOURCE + " TEXT, " +
                 KEY_URL_SOURCE + " TEXT, " +

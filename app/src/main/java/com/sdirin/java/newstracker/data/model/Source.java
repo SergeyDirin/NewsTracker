@@ -89,14 +89,21 @@ public class Source {
     }
 
     public static Source fromCursor(Cursor cursor) {
-        return new Source(
-                cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_SOURCE_ID)),
-                cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_NAME)),
-                cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_DESCRIPTION_SOURCE)),
-                cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_URL_SOURCE)),
-                cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_CATEGORY)),
-                cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_LANGUAGE)),
-                cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_COUNTRY))
-        );
+        if (cursor.getColumnIndex(DatabaseHandler.KEY_DESCRIPTION_SOURCE) >=0) {
+            return new Source(
+                    cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_SOURCE_ID)),
+                    cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_NAME)),
+                    cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_DESCRIPTION_SOURCE)),
+                    cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_URL_SOURCE)),
+                    cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_CATEGORY)),
+                    cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_LANGUAGE)),
+                    cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_COUNTRY))
+            );
+        } else {
+            Source result =  new Source();
+            result.setId(cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_SOURCE_ID)));
+            result.setName(cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_NAME)));
+            return result;
+        }
     }
 }

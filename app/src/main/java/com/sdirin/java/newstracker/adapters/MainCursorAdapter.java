@@ -23,9 +23,6 @@ import com.sdirin.java.newstracker.data.model.Article;
 import com.sdirin.java.newstracker.presenters.MainPresenter;
 import com.squareup.picasso.Picasso;
 
-import static android.content.ContentValues.TAG;
-import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_ID;
-
 /**
  * Created by User on 08.02.2018.
  */
@@ -133,15 +130,15 @@ public class MainCursorAdapter extends RecyclerViewCursorAdapter<MainViewHolder>
     @Override
     void remove(int dbId) {
         presenter.removeArticle(dbId);
-        mCursor.moveToFirst();
-        int position = 0;
-        do {
-            if (mCursor.getInt(mCursor.getColumnIndex(KEY_ID)) == dbId){
-                break;
-            }
-            position++;
-        } while (mCursor.moveToNext());
-        Log.d(TAG,"removing item "+position);
+//        mCursor.moveToFirst();
+//        int position = 0;
+//        do {
+//            if (mCursor.getInt(mCursor.getColumnIndex(KEY_ID)) == dbId){
+//                break;
+//            }
+//            position++;
+//        } while (mCursor.moveToNext());
+//        Log.d(TAG,"removing item "+position);
 //        notifyItemRemoved(position);
     }
 
@@ -156,11 +153,6 @@ public class MainCursorAdapter extends RecyclerViewCursorAdapter<MainViewHolder>
         Log.d("NewsApp",article.getUrl());
         intent.putExtra("EXTRA_URL", article.getUrl());
         context.startActivity(intent);
-    }
-
-    @Override
-    public void swapCursor(Cursor newCursor) {
-        super.swapCursor(newCursor);
     }
 }
 

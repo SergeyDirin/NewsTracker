@@ -34,6 +34,8 @@ public abstract class RecyclerViewCursorAdapter<VH extends RecyclerView.ViewHold
 
     boolean undoOn = true; // is undo on, you can turn it on from the toolbar menu
 
+    boolean canDelete = true;
+
     protected Handler handler = new Handler(); // hanlder for running delayed runnables
     HashMap<Integer, Runnable> pendingRunnables = new HashMap<>(); // map of items to pending runnables, so we can cancel a removal if need be
 
@@ -120,8 +122,10 @@ public abstract class RecyclerViewCursorAdapter<VH extends RecyclerView.ViewHold
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
         mRecyclerView = recyclerView;
-        setUpItemTouchHelper();
-        setUpAnimationDecoratorHelper();
+        if (canDelete) {
+            setUpItemTouchHelper();
+            setUpAnimationDecoratorHelper();
+        }
     }
 
     /**
