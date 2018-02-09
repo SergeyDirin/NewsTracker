@@ -3,6 +3,9 @@ package com.sdirin.java.newstracker.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -40,9 +43,19 @@ public class MainCursorAdapter extends RecyclerViewCursorAdapter<MainViewHolder>
         this.presenter = presenter;
     }
 
+    void setBackgroundColors(){
+        if (xMark == null) {
+            background = new ColorDrawable(ContextCompat.getColor(context, R.color.primary_material_dark));
+            xMark = ContextCompat.getDrawable(context, R.drawable.ic_clear_24dp);
+            xMark.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+            xMarkMargin = (int) context.getResources().getDimension(R.dimen.ic_clear_margin);
+        }
+    }
+
     @Override
     public MainViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         context = parent.getContext();
+        setBackgroundColors();
         width = parent.getWidth();
         View v = LayoutInflater.from(context).inflate(R.layout.list_item_big, parent, false);
         return new MainViewHolder(v);

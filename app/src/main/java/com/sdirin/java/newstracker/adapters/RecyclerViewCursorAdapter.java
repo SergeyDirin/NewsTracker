@@ -37,26 +37,30 @@ public abstract class RecyclerViewCursorAdapter<VH extends RecyclerView.ViewHold
     protected Handler handler = new Handler(); // hanlder for running delayed runnables
     HashMap<Integer, Runnable> pendingRunnables = new HashMap<>(); // map of items to pending runnables, so we can cancel a removal if need be
 
-    Drawable background = new ColorDrawable(Color.RED);
+    Drawable background;
     Drawable xMark;
-    int xMarkMargin = 14;
+    int xMarkMargin;
 
 
-    public abstract void onBindViewHolder(VH holder, Cursor cursor);
-
-    abstract void onBindRemoveViewHolder(VH holder, Cursor mCursor);
-
-    ///
+    /// to change background use this:
 //    background = new ColorDrawable(ContextCompat.getColor(, R.color.primary_material_dark));
 //    xMark = ContextCompat.getDrawable(context, R.drawable.ic_clear_24dp);
 //                xMark.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
 //    xMarkMargin = (int) context.getResources().getDimension(R.dimen.ic_clear_margin);
 
-    public void setBackgroundView(Drawable background, Drawable xMark, int xMarkMargin){
-        this.background = background;
-        this.xMark = xMark;
-        this.xMarkMargin = xMarkMargin;
+
+    public RecyclerViewCursorAdapter(Cursor c) {
+        setHasStableIds(true);
+        swapCursor(c);
+        background = new ColorDrawable(Color.RED);
+        xMarkMargin = 14;
+
+        itemsPendingRemoval = new ArrayList<>();
     }
+
+    public abstract void onBindViewHolder(VH holder, Cursor cursor);
+
+    abstract void onBindRemoveViewHolder(VH holder, Cursor mCursor);
 
     void onUndoPressed(Cursor cursor){
         // user wants to undo the removal, let's cancel the pending task
@@ -67,13 +71,6 @@ public abstract class RecyclerViewCursorAdapter<VH extends RecyclerView.ViewHold
         itemsPendingRemoval.removeAll(Arrays.asList(id));
         // this will rebind the row in "normal" state
         notifyItemChanged(cursor.getPosition());
-    }
-
-    public RecyclerViewCursorAdapter(Cursor c) {
-        setHasStableIds(true);
-        swapCursor(c);
-
-        itemsPendingRemoval = new ArrayList<>();
     }
 
     @Override
