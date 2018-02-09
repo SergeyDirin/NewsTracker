@@ -37,7 +37,7 @@ public class SourcesPresenter {
     public SourcesPresenter(SourcesScreen screen) {
         mService = new ServiceProvider().getService();
         this.screen = screen;
-        this.db = screen.getDb();
+        //this.db = screen.getDb();
         selectedSources = screen.getSelectedSources();
     }
 
@@ -50,7 +50,7 @@ public class SourcesPresenter {
         sourcesResponse = new SourcesResponse();
         sourcesResponse.setMessage("ok");
 //        screen.logD("loaded DB");
-        sourcesResponse.setSources(db.getAllSources());
+//        sourcesResponse.setSources(db.getAllSources());
         screen.logD("loadFromDB: sources count = "+sourcesResponse.getSources().size());
         screen.setSourcesResponse(sourcesResponse);
     }
@@ -100,7 +100,7 @@ public class SourcesPresenter {
 
     private void safeToDb(SourcesResponse sourcesResponseNetwork) {
         for (int i=0; i<sourcesResponseNetwork.getSources().size(); i++){
-            db.addSource(sourcesResponseNetwork.getSources().get(i));
+//            db.addSource(sourcesResponseNetwork.getSources().get(i));
         }
     }
 

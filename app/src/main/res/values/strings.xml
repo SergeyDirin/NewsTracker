@@ -12,4 +12,5 @@
     <string name="tnew">NEW</string>
     <string name="sources">Sources</string>
     <string name="refresh">Refresh</string>
+    <string name="backup">Backup</string>
 </resources>

@@ -11,9 +11,11 @@ import android.net.Uri;
 
 import com.sdirin.java.newstracker.data.database.DatabaseHandler;
 
+import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_ID;
 import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_IS_DELETED;
 import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_PUBLISHED_AT;
 import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_SOURCE_ID;
+import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_TITLE;
 import static com.sdirin.java.newstracker.data.database.DatabaseHandler.TABLE_ARTICLES;
 import static com.sdirin.java.newstracker.data.database.DatabaseHandler.TABLE_SOURCES;
 
@@ -23,6 +25,7 @@ public class NewsProvider extends ContentProvider {
 
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     public static final Uri ARTICLES_URI = Uri.parse("content://"+AUTHORITY+"/"+TABLE_ARTICLES);
+    public static final Uri SOURCES_URI = Uri.parse("content://"+AUTHORITY+"/"+TABLE_SOURCES);
     DatabaseHandler dbh;
 
 
@@ -69,21 +72,42 @@ public class NewsProvider extends ContentProvider {
         SQLiteDatabase db = dbh.getReadableDatabase();
         long id;
         ContentResolver cr = getContext().getContentResolver();
-        switch (sUriMatcher.match(uri)) {
-            case 1:
-                id = db.insert(TABLE_ARTICLES,"",values);
-                if (cr!=null){
-                    getContext().getContentResolver().notifyChange(uri, null);
-                }
-                return ContentUris.withAppendedId(uri,id);
-            case 2:
-                id = db.insert(TABLE_SOURCES,"",values);
-                if (cr!=null){
-                    getContext().getContentResolver().notifyChange(uri, null);
-                }
-                return ContentUris.withAppendedId(uri,id);
-            default:
-                throw new UnsupportedOperationException("Wrong Uri");
+        if (sUriMatcher.match(uri) == 1){
+            //check if already exists
+            Cursor c = db.rawQuery("SELECT * FROM "+
+                            TABLE_ARTICLES+" WHERE "+KEY_TITLE+" = ?",
+                    new String[] {values.getAsString(KEY_TITLE)});
+            if (c.getCount() > 0){
+                c.moveToFirst();
+//                    Log.d(TAG,"found same article" + c.getLong(c.getColumnIndex(KEY_ID)));
+                return ContentUris.withAppendedId(uri,c.getLong(c.getColumnIndex(KEY_ID)));
+            }
+            //insert othervise.
+            id = db.insert(TABLE_ARTICLES,"",values);
+            db.close();
+            if (cr!=null){
+                cr.notifyChange(uri, null);
+            }
+            return ContentUris.withAppendedId(uri,id);
+        } else if (sUriMatcher.match(uri) == 2) {
+            //check if already exists
+            Cursor c = db.rawQuery("SELECT * FROM " + TABLE_SOURCES +
+                            " WHERE "+KEY_SOURCE_ID+" = ?",
+                    new String[] {values.getAsString(KEY_SOURCE_ID)});
+            if (c.getCount() > 0){
+                c.moveToFirst();
+//                    Log.d(TAG,"found same article" + c.getLong(c.getColumnIndex(KEY_ID)));
+                return ContentUris.withAppendedId(uri,c.getLong(c.getColumnIndex(KEY_SOURCE_ID)));
+            }
+            //insert othervise.
+            id = db.insert(TABLE_SOURCES,"",values);
+            db.close();
+            if (cr!=null){
+                cr.notifyChange(uri, null);
+            }
+            return ContentUris.withAppendedId(uri,id);
+        } else {
+            throw new UnsupportedOperationException("Wrong Uri");
         }
     }
 
@@ -91,12 +115,19 @@ public class NewsProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         SQLiteDatabase db = dbh.getReadableDatabase();
         int id;
+        ContentResolver cr = getContext().getContentResolver();
         switch (sUriMatcher.match(uri)) {
             case 1:
                 id = db.delete(TABLE_ARTICLES,selection,selectionArgs);
+                if (cr!=null){
+                    cr.notifyChange(uri, null);
+                }
                 return id;
             case 2:
                 id = db.delete(TABLE_SOURCES,selection,selectionArgs);
+                if (cr!=null){
+                    cr.notifyChange(uri, null);
+                }
                 return id;
             default:
                 throw new UnsupportedOperationException("Wrong Uri");
@@ -108,12 +139,19 @@ public class NewsProvider extends ContentProvider {
                       String[] selectionArgs) {
         SQLiteDatabase db = dbh.getReadableDatabase();
         int id;
+        ContentResolver cr = getContext().getContentResolver();
         switch (sUriMatcher.match(uri)) {
             case 1:
                 id = db.update(TABLE_ARTICLES,values,selection,selectionArgs);
+                if (cr!=null){
+                    cr.notifyChange(uri, null);
+                }
                 return id;
             case 2:
                 id = db.update(TABLE_SOURCES,values,selection,selectionArgs);
+                if (cr!=null){
+                    cr.notifyChange(uri, null);
+                }
                 return id;
             default:
                 throw new UnsupportedOperationException("Wrong Uri");

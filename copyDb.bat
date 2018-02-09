@@ -1,0 +1,1 @@
+adb pull /sdcard/temp/newsTrackerDatabse.sqlite

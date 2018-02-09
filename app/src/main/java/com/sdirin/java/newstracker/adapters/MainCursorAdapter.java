@@ -3,6 +3,7 @@ package com.sdirin.java.newstracker.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,19 +17,27 @@ import android.widget.Toast;
 import com.sdirin.java.newstracker.R;
 import com.sdirin.java.newstracker.activities.DetailActivity;
 import com.sdirin.java.newstracker.data.model.Article;
+import com.sdirin.java.newstracker.presenters.MainPresenter;
 import com.squareup.picasso.Picasso;
+
+import static android.content.ContentValues.TAG;
+import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_ID;
 
 /**
  * Created by User on 08.02.2018.
  */
 
-public class ItemAdapter extends RecyclerViewCursorAdapter<MainViewHolder> {
+public class MainCursorAdapter extends RecyclerViewCursorAdapter<MainViewHolder> {
 
-    Context context;
+    private Context context;
     private int width;
+    RecyclerView mRecyclerView;
 
-    public ItemAdapter() {
+    MainPresenter presenter;
+
+    public MainCursorAdapter(MainPresenter presenter) {
         super(null);
+        this.presenter = presenter;
     }
 
     @Override
@@ -79,9 +88,53 @@ public class ItemAdapter extends RecyclerViewCursorAdapter<MainViewHolder> {
         });
     }
 
+    @Override
+    void onBindRemoveViewHolder(MainViewHolder holder, final Cursor cursor) {
+        final Article article = Article.getFromCursor(cursor);
+        holder.itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.primary_material_dark));
+        holder.undoButton.setVisibility(View.VISIBLE);
+        holder.undoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onUndoPressed(cursor);
+                notifyItemChanged(cursor.getPosition());
+            }
+        });
+        holder.title.setText(article.getTitle());
+        holder.mainImage.setVisibility(View.INVISIBLE);
+        holder.title.setVisibility(View.INVISIBLE);
+        holder.author.setVisibility(View.INVISIBLE);
+        holder.date.setVisibility(View.INVISIBLE);
+        holder.description.setVisibility(View.INVISIBLE);
+        holder.by.setVisibility(View.INVISIBLE);
+        holder.tvNew.setVisibility(View.INVISIBLE);
+        holder.itemView.setOnClickListener(null);
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        mRecyclerView = recyclerView;
+    }
+
+    @Override
+    void remove(int dbId) {
+        presenter.removeArticle(dbId);
+        mCursor.moveToFirst();
+        int position = 0;
+        do {
+            if (mCursor.getInt(mCursor.getColumnIndex(KEY_ID)) == dbId){
+                break;
+            }
+            position++;
+        } while (mCursor.moveToNext());
+        Log.d(TAG,"removing item "+position);
+//        notifyItemRemoved(position);
+    }
+
     private void startDetailView(Article article) {
         article.setRead(true);
-        //presenter.setArticleRead(article);
+        presenter.setArticleRead(article);
         Intent intent = new Intent(context, DetailActivity.class);
         if (article.getUrl() == null) {
             Toast.makeText(context, "No link", Toast.LENGTH_SHORT).show();

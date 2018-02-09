@@ -1,6 +1,7 @@
 package com.sdirin.java.newstracker.activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -9,6 +10,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.test.espresso.idling.CountingIdlingResource;
@@ -25,13 +27,20 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.sdirin.java.newstracker.R;
-import com.sdirin.java.newstracker.adapters.ItemAdapter;
+import com.sdirin.java.newstracker.adapters.MainCursorAdapter;
 import com.sdirin.java.newstracker.data.NewsProvider;
 import com.sdirin.java.newstracker.data.SelectedSources;
-import com.sdirin.java.newstracker.data.database.DatabaseHandler;
 import com.sdirin.java.newstracker.data.model.NewsResponse;
 import com.sdirin.java.newstracker.presenters.MainPresenter;
 import com.sdirin.java.newstracker.view.MainScreen;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.nio.channels.FileChannel;
+
+import static com.sdirin.java.newstracker.data.database.DatabaseHandler.DATABASE_NAME;
+
 
 public class MainActivity extends BasicActivity implements MainScreen, LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -39,13 +48,14 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
     private static final int PERMISSIONS_REQUEST_INTERNET = 1;
     private static final String SCROLL_STATE = "savedScrol";
     private static final int LOADER_ID = 1;
-    NewsResponse newsResponse;
+    private static final int MY_PERMISSIONS_REQUEST_READ_STORAGE = 2;
     MainPresenter presenter;
 
-    ItemAdapter adapter;
+    MainCursorAdapter adapter;
 
     RecyclerView mRecycleView;
     RecyclerView.LayoutManager layoutManager;
+
 
     public static int TYPE_WIFI = 1;
     public static int TYPE_MOBILE = 2;
@@ -78,8 +88,8 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.refresh:
-                presenter.loadFromNetwork();
+            case R.id.backup:
+                checkPermissionReadStorage(this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -97,7 +107,7 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
         super.onResume();
 
         presenter.onResume();
-        displayList();
+//        displayList();
     }
 
     @Override
@@ -117,12 +127,12 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
     }
 
     public void setNewsResponse(NewsResponse newsResponse){
-        if (this.newsResponse == null){
-            this.newsResponse = new NewsResponse();
-        }
-        if (adapter != null){
-            adapter.notifyDataSetChanged();
-        }
+//        if (this.newsResponse == null){
+//            this.newsResponse = new NewsResponse();
+//        }
+//        if (adapter != null){
+//            adapter.notifyDataSetChanged();
+//        }
     }
 
     public void displayList() {
@@ -131,7 +141,7 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
 //        }
 //        mRecycleView = findViewById(R.id.news_list);
 //        if (adapter == null){
-//            adapter = new ItemAdapter();
+//            adapter = new MainCursorAdapter();
 //            layoutManager = new LinearLayoutManager(this);
 //            mRecycleView.setLayoutManager(layoutManager);
 //            mRecycleView.setItemAnimator(new DefaultItemAnimator());
@@ -173,7 +183,6 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        Log.d(TAG, "Premisson Result");
 
         if (requestCode == PERMISSIONS_REQUEST_INTERNET) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
@@ -183,6 +192,12 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
                 Toast.makeText(this, "Internet premision denied", Toast.LENGTH_SHORT).show();
                 // permission denied, boo! Disable the
                 // functionality that depends on this permission.
+            }
+        } if (requestCode == MY_PERMISSIONS_REQUEST_READ_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                backupDb();
+            } else {
+                logD("External write permition denied");
             }
         } else {
 
@@ -204,11 +219,6 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
                 return TYPE_MOBILE;
         }
         return TYPE_NOT_CONNECTED;
-    }
-
-    @Override
-    public DatabaseHandler getDb() {
-        return new DatabaseHandler(this);
     }
 
     public void showErrorMessage() {
@@ -248,7 +258,7 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
     @Override
     public void onLoadFinished(Loader loader, Cursor c) {
         if (adapter == null) {
-            adapter = new ItemAdapter();
+            adapter = new MainCursorAdapter(presenter);
             mRecycleView = findViewById(R.id.news_list);
             layoutManager = new LinearLayoutManager(this);
             mRecycleView.setLayoutManager(layoutManager);
@@ -262,5 +272,60 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
     @Override
     public void onLoaderReset(Loader loader) {
         adapter.swapCursor(null);
+    }
+
+    public void backupDb() {
+        File sd = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/temp");
+        File currentDB = getApplicationContext().getDatabasePath(DATABASE_NAME); //databaseName=your current application database name, for example "my_data.db"
+        if (sd.canWrite()) {
+            File backupDB = new File(sd, DATABASE_NAME+".sqlite"); // for example "my_data_backup.db"
+            if (currentDB.exists()) {
+                FileChannel src = null;
+                try {
+                    src = new FileInputStream(currentDB).getChannel();
+                    FileChannel dst = new FileOutputStream(backupDB).getChannel();
+                    dst.transferFrom(src, 0, src.size());
+                    src.close();
+                    dst.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    logD("Backup failed");
+                }
+
+                logD("Backup Done");
+            } else {
+                logD("DB not found");
+            }
+        } else {
+            logD("Backup permission denied");
+            logD(currentDB.getAbsolutePath());
+        }
+    }
+    public void checkPermissionReadStorage(Activity activity){
+        if (ContextCompat.checkSelfPermission(activity,      Manifest.permission.WRITE_EXTERNAL_STORAGE) !=     PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(activity,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_READ_STORAGE);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        } else {
+            backupDb();
+        }
     }
 }

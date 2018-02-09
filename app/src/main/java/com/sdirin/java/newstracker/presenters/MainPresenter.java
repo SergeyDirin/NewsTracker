@@ -1,11 +1,13 @@
 package com.sdirin.java.newstracker.presenters;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.support.annotation.NonNull;
 import android.support.test.espresso.idling.CountingIdlingResource;
 
+import com.sdirin.java.newstracker.data.NewsProvider;
 import com.sdirin.java.newstracker.data.SelectedSources;
 import com.sdirin.java.newstracker.data.ServiceProvider;
-import com.sdirin.java.newstracker.data.database.DatabaseHandler;
 import com.sdirin.java.newstracker.data.model.Article;
 import com.sdirin.java.newstracker.data.model.NewsResponse;
 import com.sdirin.java.newstracker.data.model.parse.NewsParser;
@@ -18,6 +20,18 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_AUTHOR;
+import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_DESCRIPTION;
+import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_ID;
+import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_IS_DELETED;
+import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_IS_READ;
+import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_NAME;
+import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_PUBLISHED_AT;
+import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_SOURCE_ID;
+import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_TITLE;
+import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_URL;
+import static com.sdirin.java.newstracker.data.database.DatabaseHandler.KEY_URL_TO_IMAGE;
+
 
 /**
  * Created by SDirin on 06-Jan-18.
@@ -25,38 +39,26 @@ import retrofit2.Response;
 
 public class MainPresenter {
 
-    public NewsResponse newsResponse;
     private NewsService mService;
-    private DatabaseHandler db;
-
     private MainScreen screen;
 
     //testing network support
     private CountingIdlingResource idlingResource;
     private int incrementCalls = 0;
 
+    ContentResolver cr;
+
     public MainPresenter(MainScreen screen){
         mService = new ServiceProvider().getService();
         this.screen = screen;
-        this.db = screen.getDb();
+        this.cr = screen.getContentResolver();
     }
 
     public void onResume(){
     }
 
-    private void loadFromDB() {
-        newsResponse = new NewsResponse();
-        newsResponse.setMessage("ok");
-//        screen.logD("loaded DB");
-        newsResponse.setArticles(db.getAllArticles());
-        screen.logD("loadFromDB: news count = "+newsResponse.getArticles().size());
-        newsResponse.orderByDate();
-        screen.setNewsResponse(newsResponse);
-    }
-
     public void onStart(){
         screen.askPermition();
-        loadFromDB();
         loadFromNetwork();
     }
 
@@ -64,11 +66,6 @@ public class MainPresenter {
         if (!screen.isInternetAvailable()){
             return;
         }
-        screen.logD("loadFromNetwork");
-//        if (isLoadedWithPermition){
-//            return;
-//        }
-//        isLoadedWithPermition = true;
         incrementIdlingResouce();
         SelectedSources selected = screen.getSelectedSources();
         String sources = selected.getSelectedSources();
@@ -88,10 +85,8 @@ public class MainPresenter {
                         screen.logD("Error loading news");
                         return;
                     }
-                    screen.logD("onResponse: news count = "+newsResponseNetwork.getArticles().size());
-                    newsResponse.combineWith(newsResponseNetwork);
-                    safeToDb(newsResponse);
-                    loadFromDB();
+                    screen.logD("fromNetweork: news count = "+newsResponseNetwork.getArticles().size());
+                    safeToDb(newsResponseNetwork);
                 } else {
                     int statusCode = response.code();
                     screen.logD("onResponse: status code = "+statusCode);
@@ -109,9 +104,29 @@ public class MainPresenter {
     }
 
     private void safeToDb(NewsResponse response) {
-//        screen.logD("safeToDb: news count = "+response.getArticles().size());
         for (int i=0; i<response.getArticles().size(); i++){
-            db.addArticle(response.getArticles().get(i));
+            Article article = response.getArticles().get(i);
+
+            //insert source
+            ContentValues values = new ContentValues();
+            values.put(KEY_SOURCE_ID, article.getSource().getId());
+            values.put(KEY_NAME, article.getSource().getName());
+
+            cr.insert(NewsProvider.SOURCES_URI, values);
+
+            //insert article
+            values = new ContentValues();
+            values.put(KEY_SOURCE_ID, article.getSource().getId());
+            values.put(KEY_AUTHOR, article.getAuthor());
+            values.put(KEY_TITLE, article.getTitle());
+            values.put(KEY_DESCRIPTION, article.getDescription());
+            values.put(KEY_URL, article.getUrl());
+            values.put(KEY_URL_TO_IMAGE, article.getUrlToImage());
+            values.put(KEY_PUBLISHED_AT, article.getPublishedAtFullString());
+            values.put(KEY_IS_DELETED, article.isDeleted()?1:0);
+            values.put(KEY_IS_READ, article.isRead()?1:0);
+
+            cr.insert(NewsProvider.ARTICLES_URI, values);
         }
     }
 
@@ -137,12 +152,19 @@ public class MainPresenter {
         }
     }
 
-    public void removeArticle(Article article) {
-        db.deleteArticle(article);
-        newsResponse.remove(article);
+    public void removeArticle(int dbId) {
+        ContentValues values = new ContentValues();
+        values.put(KEY_IS_DELETED, 1);
+        cr.update(NewsProvider.ARTICLES_URI, values, KEY_ID + " = ?",
+                new String[]{Integer.toString(dbId)});
     }
 
+
     public void setArticleRead(Article article) {
-        db.setArticleRead(article);
+        ContentValues values = new ContentValues();
+        values.put(KEY_IS_READ, 1);
+        cr.update(NewsProvider.ARTICLES_URI, values, KEY_ID + " = ?",
+                new String[]{Integer.toString(article.getDbId())});
     }
+
 }

@@ -8,6 +8,6 @@
         android:title="@string/menu"
         app:showAsAction="always" />
     <item
-        android:id="@+id/refresh"
-        android:title="@string/refresh" />
+        android:id="@+id/backup"
+        android:title="@string/backup" />
 </menu>
