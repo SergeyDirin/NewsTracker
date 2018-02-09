@@ -1,13 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item
-        android:id="@+id/home_menu"
-        android:title="@string/home" />
-    <item
-        android:id="@+id/settings_menu"
-        android:title="@string/settings" />
-    <item
-        android:id="@+id/sources_menu"
-        android:title="@string/sources" />
+    <group
+        android:id="@+id/main_menu"
+        android:checkableBehavior="none">
+        <item
+            android:id="@+id/home_menu"
+            android:title="@string/home" />
+        <item
+            android:id="@+id/settings_menu"
+            android:title="@string/settings" />
+        <item
+            android:id="@+id/sources_menu"
+            android:title="@string/sources" />
+    </group>
+    <group
+        android:id="@+id/additional_menu"
+        android:checkableBehavior="none">
+        <item
+            android:id="@+id/license_menu"
+            android:title="@string/license" />
+    </group>
 </menu>

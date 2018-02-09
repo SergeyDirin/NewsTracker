@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.sdirin.java.newstracker.R;
+import com.sdirin.java.newstracker.activities.LicenseActivity;
 import com.sdirin.java.newstracker.activities.SourcesActivity;
 
 /**
@@ -36,10 +37,16 @@ public class NavigationDrawer {
                     case R.id.settings_menu:
                         Toast.makeText(NavigationDrawer.this.context, "Settings pressed", Toast.LENGTH_SHORT).show();
                         return true;
-                    case R.id.sources_menu:
+                    case R.id.sources_menu:{
                         Intent intent = new Intent(NavigationDrawer.this.context, SourcesActivity.class);
                         NavigationDrawer.this.context.startActivity(intent);
                         return true;
+                    }
+                    case R.id.license_menu:{
+                        Intent intent = new Intent(NavigationDrawer.this.context, LicenseActivity.class);
+                        NavigationDrawer.this.context.startActivity(intent);
+                        return true;
+                    }
                     default:
                         return false;
                 }
