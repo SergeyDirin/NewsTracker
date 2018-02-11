@@ -1,8 +1,8 @@
 package com.sdirin.java.newstracker.activities;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
@@ -13,9 +13,7 @@ import android.os.Environment;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.test.espresso.idling.CountingIdlingResource;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -25,6 +23,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.sdirin.java.newstracker.CleanUpService;
 import com.sdirin.java.newstracker.R;
 import com.sdirin.java.newstracker.adapters.MainCursorAdapter;
 import com.sdirin.java.newstracker.data.NewsProvider;
@@ -81,14 +80,19 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.backup:
-                checkPermissionReadStorage(this);
-                if (isPermitionGranted(Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+            case R.id.backup: {
+                if (isPermitionGranted(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     backupDb();
                 } else {
-                    askPermition(Manifest.permission.WRITE_EXTERNAL_STORAGE,BasicActivity.PERMISSIONS_REQUEST_READ_STORAGE);
+                    askPermition(Manifest.permission.WRITE_EXTERNAL_STORAGE, BasicActivity.PERMISSIONS_REQUEST_READ_STORAGE);
                 }
                 return true;
+            }
+            case R.id.cleanup: {
+                Intent intent = new Intent(this, CleanUpService.class);
+                startService(intent);
+//                Toast.makeText(this, "Cleanup Started", Toast.LENGTH_SHORT).show();
+            }
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -239,33 +243,6 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
         } else {
             logD("Backup permission denied");
             logD(currentDB.getAbsolutePath());
-        }
-    }
-    public void checkPermissionReadStorage(Activity activity){
-        if (ContextCompat.checkSelfPermission(activity,      Manifest.permission.WRITE_EXTERNAL_STORAGE) !=     PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-
-                // Show an expanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-            } else {
-
-                // No explanation needed, we can request the permission.
-
-                ActivityCompat.requestPermissions(activity,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        BasicActivity.PERMISSIONS_REQUEST_READ_STORAGE);
-
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
-            }
-        } else {
-            backupDb();
         }
     }
 }

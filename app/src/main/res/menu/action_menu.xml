@@ -10,4 +10,7 @@
     <item
         android:id="@+id/backup"
         android:title="@string/backup" />
+    <item
+        android:id="@+id/cleanup"
+        android:title="@string/cleanup" />
 </menu>

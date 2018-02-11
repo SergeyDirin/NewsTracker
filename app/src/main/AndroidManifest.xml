@@ -36,6 +36,7 @@
             android:label="NewsTrackerProvider" />
 
         <activity android:name=".activities.LicenseActivity"></activity>
+        <service android:name=".CleanUpService" />
     </application>
 
 </manifest>
