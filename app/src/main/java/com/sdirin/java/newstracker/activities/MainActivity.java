@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -45,10 +44,8 @@ import static com.sdirin.java.newstracker.data.database.DatabaseHandler.DATABASE
 public class MainActivity extends BasicActivity implements MainScreen, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = "NewsApp";
-    private static final int PERMISSIONS_REQUEST_INTERNET = 1;
     private static final String SCROLL_STATE = "savedScrol";
     private static final int LOADER_ID = 1;
-    private static final int MY_PERMISSIONS_REQUEST_READ_STORAGE = 2;
     MainPresenter presenter;
 
     MainCursorAdapter adapter;
@@ -56,10 +53,6 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
     RecyclerView mRecycleView;
     RecyclerView.LayoutManager layoutManager;
 
-
-    public static int TYPE_WIFI = 1;
-    public static int TYPE_MOBILE = 2;
-    public static int TYPE_NOT_CONNECTED = 0;
 
     Parcelable state;
 
@@ -90,6 +83,11 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
         switch (item.getItemId()) {
             case R.id.backup:
                 checkPermissionReadStorage(this);
+                if (isPermitionGranted(Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+                    backupDb();
+                } else {
+                    askPermition(Manifest.permission.WRITE_EXTERNAL_STORAGE,BasicActivity.PERMISSIONS_REQUEST_READ_STORAGE);
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -119,7 +117,9 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
     protected void onStart() {
         super.onStart();
         presenter.onStart();
-        askPermition();
+        if (!isPermitionGranted(Manifest.permission.INTERNET)){
+            askPermition(Manifest.permission.INTERNET,BasicActivity.PERMISSIONS_REQUEST_INTERNET);
+        }
     }
 
     public MainPresenter getPresenter(){
@@ -135,56 +135,11 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
 //        }
     }
 
-    public void displayList() {
-//        if (newsResponse == null) {
-//            return;
-//        }
-//        mRecycleView = findViewById(R.id.news_list);
-//        if (adapter == null){
-//            adapter = new MainCursorAdapter();
-//            layoutManager = new LinearLayoutManager(this);
-//            mRecycleView.setLayoutManager(layoutManager);
-//            mRecycleView.setItemAnimator(new DefaultItemAnimator());
-//            mRecycleView.setAdapter(adapter);
-//            layoutManager.onRestoreInstanceState(state);
-//        } else {
-//            adapter.notifyDataSetChanged();
-//        }
-
-    }
-
-    @Override
-    public boolean isPermitionGranted(){
-        return ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
-    }
-    @Override
-    public void askPermition(){
-        if (!isPermitionGranted()) {
-            ActivityCompat.requestPermissions(this,
-                    new String[] {Manifest.permission.INTERNET},
-                    PERMISSIONS_REQUEST_INTERNET);
-        }
-    }
-    @Override
-    public boolean isInternetAvailable() {
-
-        if (getConnectivityStatus() == TYPE_NOT_CONNECTED){
-            Toast.makeText(this, R.string.unavailable_network, Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        if (getConnectivityStatus() == TYPE_MOBILE) {
-            Toast.makeText(this, R.string.wifi_not_available, Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        return true;
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == PERMISSIONS_REQUEST_INTERNET) {
+        if (requestCode == BasicActivity.PERMISSIONS_REQUEST_INTERNET) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
                 presenter.loadFromNetwork();
             } else {
@@ -193,33 +148,18 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
                 // permission denied, boo! Disable the
                 // functionality that depends on this permission.
             }
-        } if (requestCode == MY_PERMISSIONS_REQUEST_READ_STORAGE) {
+        } if (requestCode == BasicActivity.PERMISSIONS_REQUEST_READ_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
                 backupDb();
             } else {
                 logD("External write permition denied");
             }
         } else {
-
             // Ignore all other requests.
         }
 
     }
 
-    public int getConnectivityStatus() {
-        ConnectivityManager cm = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        if (null != activeNetwork) {
-            if(activeNetwork.getType() == ConnectivityManager.TYPE_WIFI)
-                return TYPE_WIFI;
-
-            if(activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE)
-                return TYPE_MOBILE;
-        }
-        return TYPE_NOT_CONNECTED;
-    }
 
     public void showErrorMessage() {
         Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
@@ -318,7 +258,7 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
 
                 ActivityCompat.requestPermissions(activity,
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        MY_PERMISSIONS_REQUEST_READ_STORAGE);
+                        BasicActivity.PERMISSIONS_REQUEST_READ_STORAGE);
 
                 // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
                 // app-defined int constant. The callback method gets the

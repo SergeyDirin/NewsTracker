@@ -14,13 +14,11 @@ public interface BasicScreen {
 
     void showErrorMessage();
 
-    void displayList();
-
     void logD(String message);
 
     boolean isInternetAvailable();
-    boolean isPermitionGranted();
-    void askPermition();
+    boolean isPermitionGranted(String permission);
+    void askPermition(String permission,int resultCode);
 
     ContentResolver getContentResolver();
 }

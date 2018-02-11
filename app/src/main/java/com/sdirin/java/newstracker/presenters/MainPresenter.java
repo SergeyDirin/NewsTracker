@@ -58,7 +58,6 @@ public class MainPresenter {
     }
 
     public void onStart(){
-        screen.askPermition();
         loadFromNetwork();
     }
 
