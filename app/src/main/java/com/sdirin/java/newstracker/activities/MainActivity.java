@@ -50,7 +50,7 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
     private static final String SCROLL_STATE = "savedScrol";
     public static final String SELECTED_SOURCES = "selected_sources";
     private static final int LOADER_ID = 1;
-    private static final int INTERNET_LOADER_ID = 2;
+    public static final int INTERNET_LOADER_ID = 2;
     MainPresenter presenter;
 
     MainCursorAdapter adapter;
@@ -96,7 +96,7 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
                         INTERNET_LOADER_ID,
                         new ComponentName(this, InternetLoader.class)
                 ).setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-    //                    .setPeriodic(60 * 60 * 1000) //every hour
+                        .setPeriodic(60 * 60 * 1000) //every hour
                         .setPersisted(true)
                         .setExtras(extra)
                         .build());

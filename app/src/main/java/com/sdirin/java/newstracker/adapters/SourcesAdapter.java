@@ -45,6 +45,7 @@ public class SourcesAdapter extends RecyclerViewCursorAdapter<SourcesAdapter.Sou
                 } else {
                     presenter.selectedSources.removeSource(source);
                 }
+                presenter.isChanged = true;
             }
         });
     }

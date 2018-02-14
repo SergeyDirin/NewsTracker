@@ -34,7 +34,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-/**
+ /**
  * Created by User on 12.02.2018.
  */
 
@@ -104,15 +104,15 @@ public class InternetLoader extends JobService {
         @Override
         protected Void doInBackground(String... pSources) {
 
+            if (pSources.length == 0){
+                return null;
+            }
+            String sources = pSources[0];
+            if (sources.length() == 0){
+                sources = "polygon";
+            }
             if (lastUpdated == null){
                 lastUpdated = new Date();
-                if (pSources.length == 0){
-                    return null;
-                }
-                String sources = pSources[0];
-                if (sources.length() == 0){
-                    sources = "polygon";
-                }
                 new ServiceProvider().getService().getNews(sources).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
@@ -146,7 +146,7 @@ public class InternetLoader extends JobService {
                     return null;
                 }
                 //https://newsapi.org/v2/everything?q=android&from=2018-02-12T13:54:40Z&apiKey=7937bcf0615d4283bf3dcd18240a7f73
-                new ServiceProvider().getService().updateNews(DateFormater.getNetworkString(lastUpdated)).enqueue(new Callback<String>() {
+                new ServiceProvider().getService().updateNews(DateFormater.getNetworkString(lastUpdated),sources).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         if (response.isSuccessful()) {
@@ -162,6 +162,7 @@ public class InternetLoader extends JobService {
                         } else {
                             int statusCode = response.code();
                             Log.d(MainActivity.TAG, "updateNews onResponse: status code = "+statusCode);
+                            Log.d(MainActivity.TAG, "updateNews onResponse: response = "+response.raw().request().url());
                             loader.worker.cancel(true);
                         }
                     }
@@ -190,6 +191,7 @@ public class InternetLoader extends JobService {
                     } else {
                         int statusCode = response.code();
                         Log.d(MainActivity.TAG, "getSources onResponse: status code = "+statusCode);
+                        Log.d(MainActivity.TAG, "updateNews onResponse: response = "+response.raw().request().url());
                         loader.worker.cancel(true);
                     }
                 }

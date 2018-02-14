@@ -11,7 +11,6 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.sdirin.java.newstracker.activities.MainActivity;
 import com.sdirin.java.newstracker.data.NewsProvider;
@@ -28,6 +27,7 @@ import com.sdirin.java.newstracker.utils.DateFormater;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -40,14 +40,23 @@ public class InternetLoaderService extends IntentService {
 
     private static final int SERVICE_ID = 1;
     static Date lastUpdated;
+    static int failInterval = 5000;
+    static int maxInterval = 60*60*1000; // 1 hour
+    AlarmManager alarmManager;
+    PendingIntent pendingIntent;
 
-    public InternetLoaderService() {
-        super("InternetLoaderService");
+    public InternetLoaderService() { super("InternetLoaderService"); }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        alarmManager = (AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
     }
 
     @Override
     public void onDestroy() {
-        Toast.makeText(getApplicationContext(), "Data Load finished", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getApplicationContext(), "Data Load finished", Toast.LENGTH_SHORT).show();
+        Log.d(MainActivity.TAG,"Data Load finished");
         super.onDestroy();
     }
 
@@ -70,12 +79,12 @@ public class InternetLoaderService extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         loadLastUpdated();
+        String sources = new SelectedSources(getApplicationContext()).getSelectedSources();
+        if (sources.length() == 0){
+            sources = "polygon";
+        }
         if (lastUpdated == null){
             lastUpdated = new Date();
-            String sources = new SelectedSources(getApplicationContext()).getSelectedSources();
-            if (sources.length() == 0){
-                sources = "polygon";
-            }
             new ServiceProvider().getService().getNews(sources).enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
@@ -94,24 +103,25 @@ public class InternetLoaderService extends IntentService {
                     } else {
                         int statusCode = response.code();
                         Log.d(MainActivity.TAG, "getNews onResponse: status code = "+statusCode);
-                        reschedule(5000); //5 sec
+                        Log.d(MainActivity.TAG, "updateNews onResponse: response = "+response.raw().request().url());
+                        rescheduleFail();
                     }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
                     Log.d(MainActivity.TAG, "getNews onFalure: "+t.getMessage());
-                    reschedule(5000); //5 sec
+                    rescheduleFail();
                 }
             });
         } else {
-//            Long diff = new Date().getTime() - lastUpdated.getTime();
-//            if (TimeUnit.MILLISECONDS.toHours(diff)<1){
-//                //too soon
-//                return null;
-//            }
+            Long diff = new Date().getTime() - lastUpdated.getTime();
+            if (TimeUnit.MILLISECONDS.toHours(diff)<1){
+                //too soon
+                return;
+            }
             //https://newsapi.org/v2/everything?q=android&from=2018-02-12T13:54:40Z&apiKey=7937bcf0615d4283bf3dcd18240a7f73
-            new ServiceProvider().getService().updateNews(DateFormater.getNetworkString(lastUpdated)).enqueue(new Callback<String>() {
+            new ServiceProvider().getService().updateNews(DateFormater.getNetworkString(lastUpdated),sources).enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                     if (response.isSuccessful()) {
@@ -129,14 +139,15 @@ public class InternetLoaderService extends IntentService {
                     } else {
                         int statusCode = response.code();
                         Log.d(MainActivity.TAG, "updateNews onResponse: status code = "+statusCode);
-                        reschedule(5000); //5 sec
+                        Log.d(MainActivity.TAG, "updateNews onResponse: response = "+response.raw().request().url());
+                        rescheduleFail();
                     }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
                     Log.d(MainActivity.TAG, "getNews onFalure: "+t.getMessage());
-                    reschedule(5000); //5 sec
+                    rescheduleFail();
                 }
             });
         }
@@ -157,28 +168,36 @@ public class InternetLoaderService extends IntentService {
                 } else {
                     int statusCode = response.code();
                     Log.d(MainActivity.TAG, "getSources onResponse: status code = "+statusCode);
-                    reschedule(5000); //5 sec
+                    rescheduleFail();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
                 Log.d(MainActivity.TAG, "getNews onFalure: "+t.getMessage());
-                reschedule(5000); //5 sec
+                rescheduleFail();
             }
         });
     }
 
+    private void rescheduleFail(){
+        failInterval = failInterval * 2;
+        if (failInterval > maxInterval) {
+            failInterval = maxInterval;
+        }
+        reschedule(failInterval);
+    }
+
     private void reschedule(int mills) {
-        AlarmManager am = (AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-        if (am == null) {
+        if (alarmManager == null) {
             Log.d(MainActivity.TAG, "cannot reschedule Alarm Manager is not awailable");
             return;
         }
+        alarmManager.cancel(pendingIntent);
         Log.d(MainActivity.TAG, "Internet Loader reschedule for: " + mills);
         Intent serviceIntent = new Intent(getApplicationContext(), NetworkScheduler.class);
-        PendingIntent pi= PendingIntent.getBroadcast(getApplicationContext(), InternetLoaderService.SERVICE_ID,  serviceIntent , PendingIntent.FLAG_UPDATE_CURRENT);
-        am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + mills, pi);
+        pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), InternetLoaderService.SERVICE_ID,  serviceIntent , PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + mills, pendingIntent);
     }
 
     void safeToDb(NewsResponse response) {
