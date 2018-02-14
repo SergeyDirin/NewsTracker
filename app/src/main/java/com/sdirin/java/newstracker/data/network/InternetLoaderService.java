@@ -12,7 +12,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.sdirin.java.newstracker.activities.MainActivity;
 import com.sdirin.java.newstracker.data.NewsProvider;
 import com.sdirin.java.newstracker.data.SelectedSources;
 import com.sdirin.java.newstracker.data.ServiceProvider;
@@ -23,6 +22,7 @@ import com.sdirin.java.newstracker.data.model.Source;
 import com.sdirin.java.newstracker.data.model.SourcesResponse;
 import com.sdirin.java.newstracker.data.model.parse.NewsParser;
 import com.sdirin.java.newstracker.data.model.parse.SourcesParser;
+import com.sdirin.java.newstracker.utils.Const;
 import com.sdirin.java.newstracker.utils.DateFormater;
 
 import java.text.ParseException;
@@ -56,7 +56,7 @@ public class InternetLoaderService extends IntentService {
     @Override
     public void onDestroy() {
 //        Toast.makeText(getApplicationContext(), "Data Load finished", Toast.LENGTH_SHORT).show();
-        Log.d(MainActivity.TAG,"Data Load finished");
+        Log.d(Const.TAG,"Data Load finished");
         super.onDestroy();
     }
 
@@ -94,7 +94,7 @@ public class InternetLoaderService extends IntentService {
                             newsResponseNetwork = NewsParser.fromJson(response.body());
                         } catch (ParseException e) {
                             e.printStackTrace();
-                            Log.d(MainActivity.TAG, "getNews Parsing error");
+                            Log.d(Const.TAG, "getNews Parsing error");
                             return;
                         }
                         safeToDb(newsResponseNetwork);
@@ -102,15 +102,15 @@ public class InternetLoaderService extends IntentService {
                         reschedule(60*60*1000); //1 hour
                     } else {
                         int statusCode = response.code();
-                        Log.d(MainActivity.TAG, "getNews onResponse: status code = "+statusCode);
-                        Log.d(MainActivity.TAG, "updateNews onResponse: response = "+response.raw().request().url());
+                        Log.d(Const.TAG, "getNews onResponse: status code = "+statusCode);
+                        Log.d(Const.TAG, "updateNews onResponse: response = "+response.raw().request().url());
                         rescheduleFail();
                     }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                    Log.d(MainActivity.TAG, "getNews onFalure: "+t.getMessage());
+                    Log.d(Const.TAG, "getNews onFalure: "+t.getMessage());
                     rescheduleFail();
                 }
             });
@@ -130,7 +130,7 @@ public class InternetLoaderService extends IntentService {
                             newsResponseNetwork = NewsParser.fromJson(response.body());
                         } catch (ParseException e) {
                             e.printStackTrace();
-                            Log.d(MainActivity.TAG, "updateNews Parsing error");
+                            Log.d(Const.TAG, "updateNews Parsing error");
                             return;
                         }
                         safeToDb(newsResponseNetwork);
@@ -138,15 +138,15 @@ public class InternetLoaderService extends IntentService {
                         reschedule(60*60*1000); //1 hour
                     } else {
                         int statusCode = response.code();
-                        Log.d(MainActivity.TAG, "updateNews onResponse: status code = "+statusCode);
-                        Log.d(MainActivity.TAG, "updateNews onResponse: response = "+response.raw().request().url());
+                        Log.d(Const.TAG, "updateNews onResponse: status code = "+statusCode);
+                        Log.d(Const.TAG, "updateNews onResponse: response = "+response.raw().request().url());
                         rescheduleFail();
                     }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                    Log.d(MainActivity.TAG, "getNews onFalure: "+t.getMessage());
+                    Log.d(Const.TAG, "getNews onFalure: "+t.getMessage());
                     rescheduleFail();
                 }
             });
@@ -161,20 +161,20 @@ public class InternetLoaderService extends IntentService {
                         sourcesResponseNetwork = SourcesParser.fromJson(response.body());
                     } catch (ParseException e) {
                         e.printStackTrace();
-                        Log.d(MainActivity.TAG, "getSources Parsing error");
+                        Log.d(Const.TAG, "getSources Parsing error");
                         return;
                     }
                     safeSourcesToDb(sourcesResponseNetwork);
                 } else {
                     int statusCode = response.code();
-                    Log.d(MainActivity.TAG, "getSources onResponse: status code = "+statusCode);
+                    Log.d(Const.TAG, "getSources onResponse: status code = "+statusCode);
                     rescheduleFail();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                Log.d(MainActivity.TAG, "getNews onFalure: "+t.getMessage());
+                Log.d(Const.TAG, "getNews onFalure: "+t.getMessage());
                 rescheduleFail();
             }
         });
@@ -190,11 +190,11 @@ public class InternetLoaderService extends IntentService {
 
     private void reschedule(int mills) {
         if (alarmManager == null) {
-            Log.d(MainActivity.TAG, "cannot reschedule Alarm Manager is not awailable");
+            Log.d(Const.TAG, "cannot reschedule Alarm Manager is not awailable");
             return;
         }
         alarmManager.cancel(pendingIntent);
-        Log.d(MainActivity.TAG, "Internet Loader reschedule for: " + mills);
+        Log.d(Const.TAG, "Internet Loader reschedule for: " + mills);
         Intent serviceIntent = new Intent(getApplicationContext(), NetworkScheduler.class);
         pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), InternetLoaderService.SERVICE_ID,  serviceIntent , PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + mills, pendingIntent);

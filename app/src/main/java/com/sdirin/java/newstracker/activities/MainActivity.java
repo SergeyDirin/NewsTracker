@@ -1,9 +1,6 @@
 package com.sdirin.java.newstracker.activities;
 
 import android.Manifest;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -14,7 +11,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
-import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -31,9 +27,9 @@ import com.sdirin.java.newstracker.R;
 import com.sdirin.java.newstracker.adapters.MainCursorAdapter;
 import com.sdirin.java.newstracker.data.NewsProvider;
 import com.sdirin.java.newstracker.data.SelectedSources;
-import com.sdirin.java.newstracker.data.network.InternetLoader;
-import com.sdirin.java.newstracker.data.network.InternetLoaderService;
+import com.sdirin.java.newstracker.data.network.InternetCommon;
 import com.sdirin.java.newstracker.presenters.MainPresenter;
+import com.sdirin.java.newstracker.utils.Const;
 import com.sdirin.java.newstracker.view.MainScreen;
 
 import java.io.File;
@@ -46,11 +42,8 @@ import static com.sdirin.java.newstracker.data.database.DatabaseHandler.DATABASE
 
 public class MainActivity extends BasicActivity implements MainScreen, LoaderManager.LoaderCallbacks<Cursor> {
 
-    public static final String TAG = "NewsApp";
     private static final String SCROLL_STATE = "savedScrol";
-    public static final String SELECTED_SOURCES = "selected_sources";
     private static final int LOADER_ID = 1;
-    public static final int INTERNET_LOADER_ID = 2;
     MainPresenter presenter;
 
     MainCursorAdapter adapter;
@@ -77,34 +70,12 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
             cm.addDefaultNetworkActiveListener(new ConnectivityManager.OnNetworkActiveListener() {
                 @Override
                 public void onNetworkActive() {
-                    startInternetLoader();
+                    InternetCommon.startInternetLoader(MainActivity.this);
                 }
             });
         }
 
-        startInternetLoader();
-    }
-
-    private void startInternetLoader() {
-        if (isInternetAvailable()) {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-                PersistableBundle extra = null;
-                    extra = new PersistableBundle();
-                extra.putString(SELECTED_SOURCES,new SelectedSources(this).getSelectedSources());
-                jobScheduler.schedule(new JobInfo.Builder(
-                        INTERNET_LOADER_ID,
-                        new ComponentName(this, InternetLoader.class)
-                ).setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                        .setPeriodic(60 * 60 * 1000) //every hour
-                        .setPersisted(true)
-                        .setExtras(extra)
-                        .build());
-            } else {
-                Intent service = new Intent(this, InternetLoaderService.class);
-                startService(service);
-            }
-        }
+        InternetCommon.startInternetLoader(MainActivity.this);
     }
 
     @Override
@@ -151,7 +122,7 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
 
         if (requestCode == BasicActivity.PERMISSIONS_REQUEST_INTERNET) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                startInternetLoader();
+                InternetCommon.startInternetLoader(MainActivity.this);
             } else {
 
                 Toast.makeText(this, "Internet premision denied", Toast.LENGTH_SHORT).show();
@@ -176,7 +147,7 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
     }
 
     public void logD(String message){
-        Log.d(TAG,message);
+        Log.d(Const.TAG,message);
     }
 
     @Override

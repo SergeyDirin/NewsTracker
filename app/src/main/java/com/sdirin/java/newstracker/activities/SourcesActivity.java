@@ -1,14 +1,8 @@
 package com.sdirin.java.newstracker.activities;
 
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -23,14 +17,12 @@ import com.sdirin.java.newstracker.adapters.SourcesAdapter;
 import com.sdirin.java.newstracker.data.NewsProvider;
 import com.sdirin.java.newstracker.data.SelectedSources;
 import com.sdirin.java.newstracker.data.model.SourcesResponse;
-import com.sdirin.java.newstracker.data.network.InternetLoader;
-import com.sdirin.java.newstracker.data.network.InternetLoaderService;
+import com.sdirin.java.newstracker.data.network.InternetCommon;
 import com.sdirin.java.newstracker.presenters.SourcesPresenter;
+import com.sdirin.java.newstracker.utils.Const;
 import com.sdirin.java.newstracker.view.SourcesScreen;
 
 public class SourcesActivity extends BasicActivity implements SourcesScreen, LoaderManager.LoaderCallbacks<Cursor> {
-
-    private static final String TAG = "NewsApp";
 
     SourcesResponse sourcesResponse;
     SourcesPresenter presenter;
@@ -78,32 +70,7 @@ public class SourcesActivity extends BasicActivity implements SourcesScreen, Loa
     protected void onStop() {
         super.onStop();
         if (presenter.isChanged){
-            startInternetLoader();
-        }
-    }
-
-    private void startInternetLoader() {
-        Log.d(MainActivity.TAG, "starting loader");
-        if (isInternetAvailable()) {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-                PersistableBundle extra = null;
-                extra = new PersistableBundle();
-                extra.putString(MainActivity.SELECTED_SOURCES,new SelectedSources(this).getSelectedSources());
-                jobScheduler.schedule(new JobInfo.Builder(
-                        MainActivity.INTERNET_LOADER_ID,
-                        new ComponentName(this, InternetLoader.class)
-                ).setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                        .setPeriodic(60 * 60 * 1000) //every hour
-                        .setPersisted(true)
-                        .setExtras(extra)
-                        .build());
-            } else {
-                Intent service = new Intent(this, InternetLoaderService.class);
-                startService(service);
-            }
-        } else {
-            Log.d(MainActivity.TAG, "Internet is unavailable");
+            InternetCommon.startInternetLoader(this);
         }
     }
 
@@ -112,7 +79,7 @@ public class SourcesActivity extends BasicActivity implements SourcesScreen, Loa
     }
 
     public void logD(String message){
-        Log.d(TAG,message);
+        Log.d(Const.TAG,message);
     }
 
     @Override

@@ -13,7 +13,6 @@ import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.sdirin.java.newstracker.activities.MainActivity;
 import com.sdirin.java.newstracker.data.NewsProvider;
 import com.sdirin.java.newstracker.data.SelectedSources;
 import com.sdirin.java.newstracker.data.ServiceProvider;
@@ -24,6 +23,7 @@ import com.sdirin.java.newstracker.data.model.Source;
 import com.sdirin.java.newstracker.data.model.SourcesResponse;
 import com.sdirin.java.newstracker.data.model.parse.NewsParser;
 import com.sdirin.java.newstracker.data.model.parse.SourcesParser;
+import com.sdirin.java.newstracker.utils.Const;
 import com.sdirin.java.newstracker.utils.DateFormater;
 
 import java.text.ParseException;
@@ -53,8 +53,8 @@ public class InternetLoader extends JobService {
         this.parameters = params;
 
         PersistableBundle extra = params.getExtras();
-        if (extra.containsKey(MainActivity.SELECTED_SOURCES)){
-            sources = extra.getString(MainActivity.SELECTED_SOURCES);
+        if (extra.containsKey(InternetCommon.SELECTED_SOURCES)){
+            sources = extra.getString(InternetCommon.SELECTED_SOURCES);
         }
 
         loadLastUpdated();
@@ -122,20 +122,20 @@ public class InternetLoader extends JobService {
                                 newsResponseNetwork = NewsParser.fromJson(response.body());
                             } catch (ParseException e) {
                                 e.printStackTrace();
-                                Log.d(MainActivity.TAG, "getNews Parsing error");
+                                Log.d(Const.TAG, "getNews Parsing error");
                                 return;
                             }
                             safeToDb(newsResponseNetwork);
                         } else {
                             int statusCode = response.code();
-                            Log.d(MainActivity.TAG, "getNews onResponse: status code = "+statusCode);
+                            Log.d(Const.TAG, "getNews onResponse: status code = "+statusCode);
                             loader.worker.cancel(true);
                         }
                     }
 
                     @Override
                     public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                        Log.d(MainActivity.TAG, "getNews onFalure: "+t.getMessage());
+                        Log.d(Const.TAG, "getNews onFalure: "+t.getMessage());
                         loader.worker.cancel(true);
                     }
                 });
@@ -155,21 +155,21 @@ public class InternetLoader extends JobService {
                                 newsResponseNetwork = NewsParser.fromJson(response.body());
                             } catch (ParseException e) {
                                 e.printStackTrace();
-                                Log.d(MainActivity.TAG, "updateNews Parsing error");
+                                Log.d(Const.TAG, "updateNews Parsing error");
                                 return;
                             }
                             safeToDb(newsResponseNetwork);
                         } else {
                             int statusCode = response.code();
-                            Log.d(MainActivity.TAG, "updateNews onResponse: status code = "+statusCode);
-                            Log.d(MainActivity.TAG, "updateNews onResponse: response = "+response.raw().request().url());
+                            Log.d(Const.TAG, "updateNews onResponse: status code = "+statusCode);
+                            Log.d(Const.TAG, "updateNews onResponse: response = "+response.raw().request().url());
                             loader.worker.cancel(true);
                         }
                     }
 
                     @Override
                     public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                        Log.d(MainActivity.TAG, "getNews onFalure: "+t.getMessage());
+                        Log.d(Const.TAG, "getNews onFalure: "+t.getMessage());
                         loader.worker.cancel(true);
                     }
                 });
@@ -184,21 +184,21 @@ public class InternetLoader extends JobService {
                             sourcesResponseNetwork = SourcesParser.fromJson(response.body());
                         } catch (ParseException e) {
                             e.printStackTrace();
-                            Log.d(MainActivity.TAG, "getSources Parsing error");
+                            Log.d(Const.TAG, "getSources Parsing error");
                             return;
                         }
                         safeSourcesToDb(sourcesResponseNetwork);
                     } else {
                         int statusCode = response.code();
-                        Log.d(MainActivity.TAG, "getSources onResponse: status code = "+statusCode);
-                        Log.d(MainActivity.TAG, "updateNews onResponse: response = "+response.raw().request().url());
+                        Log.d(Const.TAG, "getSources onResponse: status code = "+statusCode);
+                        Log.d(Const.TAG, "updateNews onResponse: response = "+response.raw().request().url());
                         loader.worker.cancel(true);
                     }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                    Log.d(MainActivity.TAG, "getNews onFalure: "+t.getMessage());
+                    Log.d(Const.TAG, "getNews onFalure: "+t.getMessage());
                     loader.worker.cancel(true);
                 }
             });

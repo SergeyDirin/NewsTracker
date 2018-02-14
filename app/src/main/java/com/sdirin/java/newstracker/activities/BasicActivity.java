@@ -1,10 +1,7 @@
 package com.sdirin.java.newstracker.activities;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -15,7 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.sdirin.java.newstracker.R;
 import com.sdirin.java.newstracker.view.components.NavigationDrawer;
@@ -26,9 +22,6 @@ import com.sdirin.java.newstracker.view.components.NavigationDrawer;
 
 public class BasicActivity extends AppCompatActivity {
 
-    public static int TYPE_WIFI = 1;
-    public static int TYPE_MOBILE = 2;
-    public static int TYPE_NOT_CONNECTED = 0;
 
     public static final int PERMISSIONS_REQUEST_INTERNET = 1;
     public static final int PERMISSIONS_REQUEST_READ_STORAGE = 2;
@@ -79,30 +72,4 @@ public class BasicActivity extends AppCompatActivity {
         }
     }
 
-    public boolean isInternetAvailable() {
-
-        if (getConnectivityStatus() == TYPE_NOT_CONNECTED){
-            Toast.makeText(this, R.string.unavailable_network, Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        if (getConnectivityStatus() == TYPE_MOBILE) {
-            Toast.makeText(this, R.string.wifi_not_available, Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        return true;
-    }
-    public int getConnectivityStatus() {
-        ConnectivityManager cm = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        if (null != activeNetwork) {
-            if(activeNetwork.getType() == ConnectivityManager.TYPE_WIFI)
-                return TYPE_WIFI;
-
-            if(activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE)
-                return TYPE_MOBILE;
-        }
-        return TYPE_NOT_CONNECTED;
-    }
 }

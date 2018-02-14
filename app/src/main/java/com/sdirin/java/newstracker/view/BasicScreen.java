@@ -16,7 +16,5 @@ public interface BasicScreen {
 
     void logD(String message);
 
-    boolean isInternetAvailable();
-
     ContentResolver getContentResolver();
 }

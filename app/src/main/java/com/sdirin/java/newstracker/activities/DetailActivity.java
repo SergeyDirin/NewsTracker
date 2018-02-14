@@ -9,10 +9,10 @@ import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.sdirin.java.newstracker.R;
+import com.sdirin.java.newstracker.utils.Const;
 
 public class DetailActivity extends BasicActivity {
 
-    private static final String TAG = "NewsApp";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +27,7 @@ public class DetailActivity extends BasicActivity {
 
         if (i.hasExtra("EXTRA_URL")){
             String url = getIntent().getStringExtra("EXTRA_URL");
-            Log.d(TAG, url);
+            Log.d(Const.TAG, url);
             webView.loadUrl(url);
         } else {
             Toast.makeText(this, "No URL", Toast.LENGTH_SHORT).show();
