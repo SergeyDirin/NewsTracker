@@ -15,7 +15,7 @@ import java.util.List;
 
 public class SelectedSources {
 
-    private static final String PREF = "com.sdirin.java.newstracker";
+    public static final String PREF = "com.sdirin.java.newstracker";
     private static final String PREF_SELECTED_SOURCES = "com.sdirin.java.newstracker.selectedsources";
 
     Context context;

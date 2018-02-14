@@ -4,12 +4,15 @@ import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 
 import com.sdirin.java.newstracker.activities.MainActivity;
 import com.sdirin.java.newstracker.data.NewsProvider;
+import com.sdirin.java.newstracker.data.SelectedSources;
 import com.sdirin.java.newstracker.data.ServiceProvider;
 import com.sdirin.java.newstracker.data.database.DatabaseHandler;
 import com.sdirin.java.newstracker.data.model.Article;
@@ -22,6 +25,7 @@ import com.sdirin.java.newstracker.utils.DateFormater;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -32,6 +36,7 @@ import retrofit2.Response;
  */
 
 public class InternetLoader extends JobService {
+    private static final String PREF_LAST_UPDATED = "com.sdirin.java.newstracker.lastupdated";
     DownloadWorker worker;
     JobParameters parameters;
     public String sources;
@@ -49,9 +54,28 @@ public class InternetLoader extends JobService {
             sources = extra.getString(MainActivity.SELECTED_SOURCES);
         }
 
+        loadLastUpdated();
+
         worker.execute(new String[] {sources});
         return true;
     }
+
+    private void loadLastUpdated() {
+        SharedPreferences prefs = getApplicationContext().getSharedPreferences(
+                SelectedSources.PREF, Context.MODE_PRIVATE);
+        long prefLastUpdated = prefs.getLong(PREF_LAST_UPDATED, 0);
+        if (prefLastUpdated != 0) {
+            lastUpdated = new Date(prefLastUpdated);
+        }
+    }
+
+    private void saveLastUpdated(){
+        SharedPreferences prefs = getApplicationContext().getSharedPreferences(
+                SelectedSources.PREF, Context.MODE_PRIVATE);
+        prefs.edit().putLong(PREF_LAST_UPDATED, lastUpdated.getTime()).apply();
+    }
+
+
 
     @Override
     public boolean onStopJob(JobParameters params) {
@@ -113,6 +137,11 @@ public class InternetLoader extends JobService {
                     }
                 });
             } else {
+                Long diff = new Date().getTime() - lastUpdated.getTime();
+                if (TimeUnit.MILLISECONDS.toHours(diff)<1){
+                    //too soon
+                    return null;
+                }
                 //https://newsapi.org/v2/everything?q=android&from=2018-02-12T13:54:40Z&apiKey=7937bcf0615d4283bf3dcd18240a7f73
                 new ServiceProvider().getService().updateNews(DateFormater.getNetworkString(lastUpdated)).enqueue(new Callback<String>() {
                     @Override
@@ -194,6 +223,7 @@ public class InternetLoader extends JobService {
 
                 cr.insert(NewsProvider.ARTICLES_URI, values);
             }
+            loader.saveLastUpdated();
         }
 
         void safeSourcesToDb(SourcesResponse response) {
