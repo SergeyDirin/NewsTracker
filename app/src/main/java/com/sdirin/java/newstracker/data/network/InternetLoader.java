@@ -14,7 +14,10 @@ import com.sdirin.java.newstracker.data.ServiceProvider;
 import com.sdirin.java.newstracker.data.database.DatabaseHandler;
 import com.sdirin.java.newstracker.data.model.Article;
 import com.sdirin.java.newstracker.data.model.NewsResponse;
+import com.sdirin.java.newstracker.data.model.Source;
+import com.sdirin.java.newstracker.data.model.SourcesResponse;
 import com.sdirin.java.newstracker.data.model.parse.NewsParser;
+import com.sdirin.java.newstracker.data.model.parse.SourcesParser;
 import com.sdirin.java.newstracker.utils.DateFormater;
 
 import java.text.ParseException;
@@ -138,6 +141,30 @@ public class InternetLoader extends JobService {
                 });
             }
 
+            new ServiceProvider().getService().getSources().enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                    if (response.isSuccessful()) {
+                        //screen.logD("loaded network");
+                        SourcesResponse sourcesResponseNetwork;
+                        try {
+                            sourcesResponseNetwork = SourcesParser.fromJson(response.body());
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                            return;
+                        }
+                        safeSourcesToDb(sourcesResponseNetwork);
+                    } else {
+                        //todo reschedule
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                    //todo reschedule
+                }
+            });
+
             return null;
         }
 
@@ -166,6 +193,24 @@ public class InternetLoader extends JobService {
                 values.put(DatabaseHandler.KEY_IS_READ, article.isRead()?1:0);
 
                 cr.insert(NewsProvider.ARTICLES_URI, values);
+            }
+        }
+
+        void safeSourcesToDb(SourcesResponse response) {
+            ContentResolver cr = loader.getContentResolver();
+            for (int i=0; i<response.getSources().size(); i++){
+                Source source = response.getSources().get(i);
+
+                ContentValues values = new ContentValues();
+                values.put(DatabaseHandler.KEY_SOURCE_ID, source.getId());
+                values.put(DatabaseHandler.KEY_NAME, source.getName());
+                values.put(DatabaseHandler.KEY_DESCRIPTION_SOURCE, source.getDescription());
+                values.put(DatabaseHandler.KEY_URL_SOURCE, source.getUrl());
+                values.put(DatabaseHandler.KEY_CATEGORY, source.getCategory());
+                values.put(DatabaseHandler.KEY_LANGUAGE, source.getLanguage());
+                values.put(DatabaseHandler.KEY_COUNTRY, source.getCountry());
+
+                cr.insert(NewsProvider.SOURCES_URI, values);
             }
         }
     }
