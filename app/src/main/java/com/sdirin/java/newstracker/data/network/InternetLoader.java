@@ -140,7 +140,7 @@ public class InternetLoader extends JobService {
                     }
                 });
             } else {
-                Long diff = new Date().getTime() - lastUpdated.getTime();
+                Long diff = System.currentTimeMillis() - lastUpdated.getTime();
                 if (TimeUnit.MILLISECONDS.toHours(diff)<1){
                     //too soon
                     return null;
