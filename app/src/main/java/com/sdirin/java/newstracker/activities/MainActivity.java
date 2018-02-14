@@ -45,7 +45,7 @@ import static com.sdirin.java.newstracker.data.database.DatabaseHandler.DATABASE
 
 public class MainActivity extends BasicActivity implements MainScreen, LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final String TAG = "NewsApp";
+    public static final String TAG = "NewsApp";
     private static final String SCROLL_STATE = "savedScrol";
     public static final String SELECTED_SOURCES = "selected_sources";
     private static final int LOADER_ID = 1;

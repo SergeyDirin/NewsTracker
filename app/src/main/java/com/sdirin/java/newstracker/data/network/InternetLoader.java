@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.sdirin.java.newstracker.activities.MainActivity;
 import com.sdirin.java.newstracker.data.NewsProvider;
@@ -114,26 +115,26 @@ public class InternetLoader extends JobService {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         if (response.isSuccessful()) {
-                            //screen.logD("loaded network");
                             NewsResponse newsResponseNetwork;
                             try {
                                 newsResponseNetwork = NewsParser.fromJson(response.body());
                             } catch (ParseException e) {
                                 e.printStackTrace();
-//                        screen.logD("Error loading news");
+                                Log.d(MainActivity.TAG, "getNews Parsing error");
                                 return;
                             }
-//                    screen.logD("Sources onResponse: sources count = "+newsResponseNetwork.getSources().size());
                             safeToDb(newsResponseNetwork);
                         } else {
-//                    int statusCode = response.code();
-                            //screen.logD("onResponse: status code = "+statusCode);
+                            int statusCode = response.code();
+                            Log.d(MainActivity.TAG, "getNews onResponse: status code = "+statusCode);
+                            loader.worker.cancel(true);
                         }
                     }
 
                     @Override
                     public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                        //todo reschedule
+                        Log.d(MainActivity.TAG, "getNews onFalure: "+t.getMessage());
+                        loader.worker.cancel(true);
                     }
                 });
             } else {
@@ -147,25 +148,26 @@ public class InternetLoader extends JobService {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         if (response.isSuccessful()) {
-                            //screen.logD("loaded network");
                             NewsResponse newsResponseNetwork;
                             try {
                                 newsResponseNetwork = NewsParser.fromJson(response.body());
                             } catch (ParseException e) {
                                 e.printStackTrace();
-//                        screen.logD("Error loading news");
+                                Log.d(MainActivity.TAG, "updateNews Parsing error");
                                 return;
                             }
-//                    screen.logD("Sources onResponse: sources count = "+newsResponseNetwork.getSources().size());
                             safeToDb(newsResponseNetwork);
                         } else {
-//                    int statusCode = response.code();
-                            //screen.logD("onResponse: status code = "+statusCode);
+                            int statusCode = response.code();
+                            Log.d(MainActivity.TAG, "updateNews onResponse: status code = "+statusCode);
+                            loader.worker.cancel(true);
                         }
                     }
 
                     @Override
                     public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                        Log.d(MainActivity.TAG, "getNews onFalure: "+t.getMessage());
+                        loader.worker.cancel(true);
                     }
                 });
             }
@@ -174,23 +176,26 @@ public class InternetLoader extends JobService {
                 @Override
                 public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                     if (response.isSuccessful()) {
-                        //screen.logD("loaded network");
                         SourcesResponse sourcesResponseNetwork;
                         try {
                             sourcesResponseNetwork = SourcesParser.fromJson(response.body());
                         } catch (ParseException e) {
                             e.printStackTrace();
+                            Log.d(MainActivity.TAG, "getSources Parsing error");
                             return;
                         }
                         safeSourcesToDb(sourcesResponseNetwork);
                     } else {
-                        //todo reschedule
+                        int statusCode = response.code();
+                        Log.d(MainActivity.TAG, "getSources onResponse: status code = "+statusCode);
+                        loader.worker.cancel(true);
                     }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                    //todo reschedule
+                    Log.d(MainActivity.TAG, "getNews onFalure: "+t.getMessage());
+                    loader.worker.cancel(true);
                 }
             });
 
