@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -35,8 +36,10 @@
             android:icon="@drawable/ic_launcher_foreground"
             android:label="NewsTrackerProvider" />
 
-        <activity android:name=".activities.LicenseActivity"></activity>
+        <activity android:name=".activities.LicenseActivity"/>
         <service android:name=".CleanUpService" />
+        <service android:name=".data.network.InternetLoader"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 
 </manifest>

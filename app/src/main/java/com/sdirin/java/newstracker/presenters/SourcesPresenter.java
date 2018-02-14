@@ -50,7 +50,7 @@ public class SourcesPresenter {
     }
 
     public void onResume(){
-        loadFromNetwork();
+//        loadFromNetwork();
     }
 
     private void loadFromNetwork() {

@@ -17,8 +17,6 @@ public interface BasicScreen {
     void logD(String message);
 
     boolean isInternetAvailable();
-    boolean isPermitionGranted(String permission);
-    void askPermition(String permission,int resultCode);
 
     ContentResolver getContentResolver();
 }

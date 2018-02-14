@@ -51,7 +51,7 @@ public class RetrofitClientTest {
 
         service = retrofit.create(NewsService.class);
 
-        service.getNews().enqueue(new Callback<String>() {
+        service.getNews("polygon").enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 if (response.isSuccessful()){
@@ -98,7 +98,7 @@ public class RetrofitClientTest {
 
         service = retrofit.create(NewsService.class);
 
-        service.getNews().enqueue(new Callback<String>() {
+        service.getNews("polygon").enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 if (response.isSuccessful()){

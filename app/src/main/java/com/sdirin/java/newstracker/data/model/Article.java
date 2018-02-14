@@ -4,12 +4,10 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 
 import com.sdirin.java.newstracker.data.database.DatabaseHandler;
+import com.sdirin.java.newstracker.utils.DateFormater;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
 /**
  * Created by SDirin on 01-Jan-18.
@@ -153,27 +151,15 @@ public class Article implements Comparable<Article> {
     }
 
     public String getPublishedAtString() {
-        SimpleDateFormat sdf = new SimpleDateFormat("d MMM", Locale.getDefault());
-        sdf.setTimeZone(TimeZone.getDefault());
-        return sdf.format(publishedAt);
+        return DateFormater.getShortString(publishedAt);
     }
 
     public String getPublishedAtFullString() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        sdf.setTimeZone(TimeZone.getDefault());
-        return sdf.format(publishedAt);
+        return DateFormater.getFullString(this.publishedAt);
     }
 
     public void setPublishedAtString(String publishedAt) throws ParseException {
-        String prepare = publishedAt.replace('T',' ').replace("Z","");//"2009-10-10T12:12:12Z";
-        SimpleDateFormat sdf;
-        //check if already formated
-        if (publishedAt.length() < 10){
-            sdf = new SimpleDateFormat("d MMM", Locale.getDefault());
-        } else {
-            sdf =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        }
-        this.publishedAt = sdf.parse(prepare);
+        this.publishedAt = DateFormater.parse(publishedAt);
     }
 
     public String getID(){

@@ -21,4 +21,8 @@ public interface NewsService {
     @GET("sources?category=entertainment&apiKey=7937bcf0615d4283bf3dcd18240a7f73")
     Call<String> getSources();
 
+    //https://newsapi.org/v2/sources?category=entertainment&apiKey=7937bcf0615d4283bf3dcd18240a7f73
+    @GET("sources?category=entertainment&apiKey=7937bcf0615d4283bf3dcd18240a7f73")
+    Call<String> updateNews(@Query("from") String fromDate);
+
 }
