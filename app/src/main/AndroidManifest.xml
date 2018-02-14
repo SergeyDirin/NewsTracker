@@ -36,10 +36,23 @@
             android:icon="@drawable/ic_launcher_foreground"
             android:label="NewsTrackerProvider" />
 
-        <activity android:name=".activities.LicenseActivity"/>
+        <activity android:name=".activities.LicenseActivity" />
+
         <service android:name=".CleanUpService" />
-        <service android:name=".data.network.InternetLoader"
+        <service
+            android:name=".data.network.InternetLoader"
             android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service
+            android:name=".data.network.InternetLoaderService"
+            android:exported="false" />
+
+        <receiver
+            android:name=".data.network.NetworkScheduler"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.sdirin.java.newstracker.InternetRefresh"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

@@ -32,6 +32,7 @@ import com.sdirin.java.newstracker.adapters.MainCursorAdapter;
 import com.sdirin.java.newstracker.data.NewsProvider;
 import com.sdirin.java.newstracker.data.SelectedSources;
 import com.sdirin.java.newstracker.data.network.InternetLoader;
+import com.sdirin.java.newstracker.data.network.InternetLoaderService;
 import com.sdirin.java.newstracker.presenters.MainPresenter;
 import com.sdirin.java.newstracker.view.MainScreen;
 
@@ -86,17 +87,23 @@ public class MainActivity extends BasicActivity implements MainScreen, LoaderMan
 
     private void startInternetLoader() {
         if (isInternetAvailable()) {
-            JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-            PersistableBundle extra = new PersistableBundle();
-            extra.putString(SELECTED_SOURCES,new SelectedSources(this).getSelectedSources());
-            jobScheduler.schedule(new JobInfo.Builder(
-                    INTERNET_LOADER_ID,
-                    new ComponentName(this, InternetLoader.class)
-            ).setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-//                    .setPeriodic(60 * 60 * 1000) //every hour
-                    .setPersisted(true)
-                    .setExtras(extra)
-                    .build());
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+                PersistableBundle extra = null;
+                    extra = new PersistableBundle();
+                extra.putString(SELECTED_SOURCES,new SelectedSources(this).getSelectedSources());
+                jobScheduler.schedule(new JobInfo.Builder(
+                        INTERNET_LOADER_ID,
+                        new ComponentName(this, InternetLoader.class)
+                ).setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+    //                    .setPeriodic(60 * 60 * 1000) //every hour
+                        .setPersisted(true)
+                        .setExtras(extra)
+                        .build());
+            } else {
+                Intent service = new Intent(this, InternetLoaderService.class);
+                startService(service);
+            }
         }
     }
 

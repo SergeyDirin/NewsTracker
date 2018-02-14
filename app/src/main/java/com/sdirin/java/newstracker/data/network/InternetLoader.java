@@ -1,5 +1,6 @@
 package com.sdirin.java.newstracker.data.network;
 
+import android.annotation.TargetApi;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.ContentResolver;
@@ -7,6 +8,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -36,13 +38,13 @@ import retrofit2.Response;
  * Created by User on 12.02.2018.
  */
 
+@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class InternetLoader extends JobService {
-    private static final String PREF_LAST_UPDATED = "com.sdirin.java.newstracker.lastupdated";
+    public static final String PREF_LAST_UPDATED = "com.sdirin.java.newstracker.lastupdated";
     DownloadWorker worker;
     JobParameters parameters;
     public String sources;
 
-    //todo save lastUpdate to storage
     static Date lastUpdated;
 
     @Override

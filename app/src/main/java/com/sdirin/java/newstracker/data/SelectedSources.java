@@ -64,7 +64,9 @@ public class SelectedSources {
                 }
                 newSources.append(split.get(i)+",");
             }
-            newSources = newSources.deleteCharAt(newSources.length()-1);
+            if (newSources.length() > 0) {
+                newSources = newSources.deleteCharAt(newSources.length() - 1);
+            }
             saveSoures(newSources.toString());
         }
         loadSelected();
